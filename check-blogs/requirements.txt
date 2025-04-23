@@ -1,0 +1,8 @@
+functions-framework==3.*
+google-api-python-client
+google-cloud-firestore
+google-cloud-pubsub
+beautifulsoup4
+lxml # required for beautifulsoup4
+google-genai
+pytz
