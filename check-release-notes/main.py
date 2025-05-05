@@ -141,9 +141,6 @@ def get_new_release_note_subsections(latest_release_note, stored_release_note):
         BeautifulSoup(html, "html.parser").get_text()
         for html in stored_release_note_subsections_html
     ]
-    stored_release_note_subsections_headers = re.findall(
-        r"<h3>(.*)?</h3>", stored_release_note.get("html")
-    )
     # Get only new subsections from the latest release note
     new_release_notes_subsections = ""
     for index, subsection_text in enumerate(latest_release_note_subsections_text_only):
@@ -168,9 +165,14 @@ def get_new_release_notes(latest_release_notes):
                 save_release_note_to_firestore(
                     product, latest_release_notes.get(product)
                 )
-                new_release_notes[product] = get_new_release_note_subsections(
+                new_release_note_subsections = get_new_release_note_subsections(
                     latest_release_notes.get(product), stored_release_note
                 )
+                # Sometimes a new release note is actually a retraction of a subsection within the release note.
+                # The following checks if the html field is populated before adding it to new_release_notes
+                # so that users are not alerted for a retraction.
+                if new_release_note_subsections.get('html'):
+                    new_release_notes[product] = new_release_note_subsections
         else:
             save_release_note_to_firestore(product, latest_release_notes.get(product))
             new_release_notes[product] = latest_release_notes.get(product)
