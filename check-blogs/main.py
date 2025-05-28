@@ -85,10 +85,6 @@ def summarize_blog(blog):
                 {{
                     "example": "\n- This is the first item in the list.\n- This is the second item in the list.\n- This is the third item in the list.\n"
                 }},
-                "Sub-Bulleted List":
-                {{
-                    "example": "\n- This is the first item in the list.\n  - This is a sub-bullet under the first item.\n- This is the second item in the list.\n"
-                }},
             }}
         }}
         You will not mention anything about the formatting_options in the summary.
