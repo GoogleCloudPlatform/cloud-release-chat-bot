@@ -19,13 +19,12 @@ import re
 from concurrent import futures
 from typing import Any, Mapping
 
+import client_utils
 import flask
 import functions_framework
 from google.apps.chat_v1.types import Message
 from google.cloud import firestore
 from markdownify import markdownify as md
-
-import client_utils
 
 SUBSCRIBE_COMMAND_ID = 1
 SUBSCRIPTIONS_COMMAND_ID = 2
@@ -567,7 +566,7 @@ def create_message(pubsub_message):
         blog = pubsub_message.get("blog")
         title = f"New Blog from {blog.get('category_name')}"
         subtitle = blog.get("date")
-        message = f"<b>{blog.get('title')}</b><br><br>{blog.get('summary')}"
+        message = f"*{blog.get('title')}*\n\n{blog.get('summary')}"
         link = blog.get("link")
     else:
         title = "An Error Occurred"
@@ -577,7 +576,7 @@ def create_message(pubsub_message):
 
     return Message(
         thread={"thread_key": link},
-        text=f"*{title}*\n*{subtitle}*\n\n{message}",
+        text=f"{title}\n{subtitle}\n\n{message}",
         accessory_widgets=[
             {
                 "button_list": {

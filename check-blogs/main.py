@@ -63,39 +63,27 @@ def summarize_blog(blog):
             {{
                 "Bold":
                 {{
-                    "example": "This is <b>bold</b>."
+                    "example": "This is *bold*."
                 }},
                 "Italics":
                 {{
-                    "example": "This is <i>italics</i>."
-                }},
-                "Underline":
-                {{
-                    "example": "This is <u>underline</u>."
+                    "example": "This is _italics_."
                 }},
                 "Strikethrough":
                 {{
-                    "example": "This is <s>strikethrough</s>."
-                }},
-                "Font color":
-                {{
-                    "example": "This is <font color=\"#FF0000\">red font</font>."
+                    "example": "This is ~strikethrough~."
                 }},
                 "Hyperlink":
                 {{
-                    "example": "This is a <a href=\"https://www.google.com\">hyperlink</a>."
-                }},
-                "Time":
-                {{
-                    "example": "This is a time format: <time>2023-02-16 15:00</time>."
+                    "example": "This is a <https://example.com|hyperlink>."
                 }},
                 "Newline":
                 {{
-                    "example": "This is the first line. <br> This is a new line."
+                    "example": "This is the first line.\nThis is a new line."
                 }},
                 "Bulleted List":
                 {{
-                    "example": "<span>&nbsp;&nbsp;&nbsp;&nbsp;&#8226;&nbsp;&nbsp;</span>This is the first item in the list.<br><span>&nbsp;&nbsp;&nbsp;&nbsp;&#8226;&nbsp;&nbsp;</span>This is the second item in the list.<br><span>&nbsp;&nbsp;&nbsp;&nbsp;&#8226;&nbsp;&nbsp;</span>This is the third item in the list."
+                    "example": "* This is the first item in the list.\n* This is the second item in the list.\n* This is the third item in the list."
                 }},
             }}
         }}

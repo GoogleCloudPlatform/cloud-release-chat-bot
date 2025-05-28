@@ -118,15 +118,15 @@ def retrieve_dialog_response(notes, blogs):
 
 def send_chat_message(space_id, message):
     try:
-        request = google_chat.CreateMessageRequest(
-            parent=space_id,
-            message=message,
-            # Set the message reply option to fallback to a new thread
-            message_reply_option=google_chat.CreateMessageRequest.MessageReplyOption.REPLY_MESSAGE_FALLBACK_TO_NEW_THREAD,
+        response = chat_client.create_message(
+            request=google_chat.CreateMessageRequest(
+                parent=space_id,
+                message=message,
+                # Set the message reply option to fallback to a new thread
+                message_reply_option=google_chat.CreateMessageRequest.MessageReplyOption.REPLY_MESSAGE_FALLBACK_TO_NEW_THREAD,
+            )
         )
-        response = chat_client.create_message(request=request)
         print(f"Response from sending chat message: {response}")
-        print(f"Successfully sent message to space {space_id}")
 
     except Exception as e:
         print(f"Error sending message to space {space_id}: {e}")
