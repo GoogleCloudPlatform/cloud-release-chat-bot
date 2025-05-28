@@ -83,7 +83,7 @@ def summarize_blog(blog):
                 }},
                 "Bulleted List":
                 {{
-                    "example": "\n* This is the first item in the list.\n* This is the second item in the list.\n* This is the third item in the list.\n"
+                    "example": "\n- This is the first item in the list.\n- This is the second item in the list.\n- This is the third item in the list.\n"
                 }},
             }}
         }}
