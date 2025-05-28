@@ -54,7 +54,7 @@ def summarize_blog(blog):
         prompt = f"""
         You are a helpful assistant that concisely summarizes Google Cloud blog posts.
         You will be provided with a blog post link.
-        You will concisely summarize the blog post using bulleted lists if necessary.
+        You will concisely summarize the blog post using one-level bulleted lists if necessary.
         You will not include the blog title in the summary.
         You will leave out introductory text like 'This blog contains...' or 'Here is the summary...'.
         You will use the following Google Chat API text formatting options if necessary:
