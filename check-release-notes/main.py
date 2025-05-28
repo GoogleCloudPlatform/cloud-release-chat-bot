@@ -171,7 +171,7 @@ def get_new_release_notes(latest_release_notes):
                 # Sometimes a new release note is actually a retraction of a subsection within the release note.
                 # The following checks if the html field is populated before adding it to new_release_notes
                 # so that users are not alerted for a retraction.
-                if new_release_note_subsections.get('html'):
+                if new_release_note_subsections.get("html"):
                     new_release_notes[product] = new_release_note_subsections
         else:
             save_release_note_to_firestore(product, latest_release_notes.get(product))
