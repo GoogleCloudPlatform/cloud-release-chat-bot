@@ -96,7 +96,7 @@ def summarize_blog(blog):
         Here is the blog post link to summarize: {blog.get("link")}        
         """
         response = client.models.generate_content(
-            # https://ai.google.dev/gemini-api/docs/models#gemini-2.5-pro-preview-03-25
+            # https://ai.google.dev/gemini-api/docs/models
             model="gemini-2.5-pro-preview-05-06",
             contents=prompt,
         )
