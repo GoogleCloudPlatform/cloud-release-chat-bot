@@ -1,6 +1,5 @@
 functions-framework==3.*
 flask
 google-cloud-firestore
-google-api-python-client
 google-apps-chat
 markdownify
