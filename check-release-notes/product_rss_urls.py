@@ -301,3 +301,5 @@ rss_urls = [
         "workstations-release-notes.xml",
     ]
 ]
+# Add changelog RSS URL for Google Threat Intelligence
+rss_urls.append("https://gtidocs.virustotal.com/changelog.rss")

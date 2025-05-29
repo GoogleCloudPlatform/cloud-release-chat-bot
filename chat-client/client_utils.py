@@ -384,6 +384,7 @@ google_cloud_products = [
     "Google SecOps",
     "Google SecOps SIEM",
     "Google SecOps SOAR",
+    "Google Threat Intelligence",
     "Identity and Access Management",
     "Identity Platform",
     "Identity-Aware Proxy",
