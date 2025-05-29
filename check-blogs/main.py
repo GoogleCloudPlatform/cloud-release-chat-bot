@@ -147,7 +147,7 @@ def get_blog_posts(rss_url):
 
 
 def get_stored_blog_posts():
-    doc_ref = firestore_client.collection("cloud-release-notes").document("blogs")
+    doc_ref = firestore_client.collection("cloud_release_blogs").document("blogs")
     blog_map = doc_ref.get().to_dict()
     return blog_map
 
@@ -203,7 +203,7 @@ def send_new_blogs():
     futures.wait(publish_futures, return_when=futures.ALL_COMPLETED)
 
     if new_blogs_map:  # Keep this part to update the Firestore document
-        doc_ref = firestore_client.collection("cloud-release-notes").document("blogs")
+        doc_ref = firestore_client.collection("cloud_release_blogs").document("blogs")
         doc_ref.set(blog_map)
 
 

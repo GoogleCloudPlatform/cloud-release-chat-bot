@@ -21,7 +21,7 @@ The bot operates using the following main components:
 
 The bot uses Firestore to manage space subscriptions and store the latest release notes.  Three main collections are used:
 
-1.  **`cloud-release-notes`:** This collection stores the latest release notes fetched by the `release-notes-checker` function.  Each document in this collection represents a single release note and contain fields like `html`, `release_date`.
+1.  **`cloud_release_notes`:** This collection stores the latest release notes fetched by the `release-notes-checker` function.  Each document in this collection represents a single release note and contain fields like `html`, `release_date`.
 
 2.  **`product_space_subscriptions`:** This collection stores the relationship between chat spaces and the Google Cloud products/blogs they've subscribed to.  Each document in this collection represents a chat space.  Within each space document, there's an array field (e.g., `products`, `categories`) that contains the names of the products/blogs that the space has subscribed to. This enables efficient retrieval of the products a given space is interested in.  Example:
 
