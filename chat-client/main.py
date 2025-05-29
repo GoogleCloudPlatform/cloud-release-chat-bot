@@ -545,22 +545,30 @@ def record_product_subscription(space_id, products, categories):
         print(f"Error recording subscription: {e}", exc_info=True)
 
 
+def convert_html_to_chat_api_format(html_content):
+    message = md(html_content, strong_em_symbol="_", bullets="-")
+    # Replace markdown header # with bold * * formatting that Chat API supports
+    # https://developers.google.com/workspace/chat/format-messages#format-texts
+    message = re.sub(
+        r"#+ (?P<header>.*?)\n", r"*\g<header>*", message
+    )
+    # Convert markdown hyperlinks to Chat API format
+    message = re.sub(
+        r"\[(?P<text>.*?)\]\((?P<link>.*?)\)",
+        r"<\g<link>|\g<text>>",
+        message,
+    )
+    # Convert markdown bold format to Chat API format
+    message = re.sub(r"__(?P<text>.*?)__", r"*\g<text>*", message)
+    return message
+
+
 def create_message(pubsub_message):
     if "release_note" in pubsub_message:
         release_note = pubsub_message.get("release_note")
         title = f"New Release from {release_note.get('product')}"
         subtitle = release_note.get("date")
-        # Replace markdown header ### with * * formatting that Chat API supports
-        # https://developers.google.com/workspace/chat/format-messages#format-texts
-        message = re.sub(
-            r"### (?P<header>.*?)\n", r"*\g<header>*", md(release_note.get("html"))
-        )
-        # Convert markdown hyperlinks to Chat API format
-        message = re.sub(
-            r"\[(?P<text>.*?)\]\((?P<link>.*?)\)",
-            r"<\g<link>|\g<text>>",
-            message,
-        )
+        message = convert_html_to_chat_api_format(release_note.get("html"))
         link = release_note.get("link")
     elif "blog" in pubsub_message:
         blog = pubsub_message.get("blog")
