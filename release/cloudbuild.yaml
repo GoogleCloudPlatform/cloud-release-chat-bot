@@ -23,7 +23,7 @@ steps:
       uv init --bare
       uv add -r requirements.txt
       uv add pytest
-      uv run pytest
+      uv run --python 3.12 pytest
       rm pyproject.toml
       rm uv.lock
       rm -rf .venv
@@ -41,7 +41,7 @@ steps:
       uv init --bare
       uv add -r requirements.txt
       uv add pytest
-      uv run pytest
+      uv run --python 3.12 pytest
       rm pyproject.toml
       rm uv.lock
       rm -rf .venv
