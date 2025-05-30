@@ -91,7 +91,7 @@ def summarize_blog(blog):
             }},
             {{
                 "Format": "Bulleted list",
-                "Symbol": "* or - (hyphen) followed by a space",
+                "Symbol": "* or - (hyphen) followed by only 1 space and then the text",
                 "Example syntax": "* This is the first item in the list\n* This is the second item in the list",
                 "Text displayed in Google Chat": "• This is the first item in the list\n• This is the second item in the list"
             }}
