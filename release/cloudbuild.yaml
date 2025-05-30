@@ -24,6 +24,12 @@ steps:
       uv add -r requirements.txt
       uv add pytest
       uv run pytest
+      rm pyproject.toml
+      rm uv.lock
+      rm -rf .venv
+      rm -rf __pycache__
+      rm -rf tests/__pycache__
+      rm -rf .pytest_cache
   waitFor: ['-']
 - id : 'unit test check-release'
   name: 'ghcr.io/astral-sh/uv:debian'
@@ -36,6 +42,12 @@ steps:
       uv add -r requirements.txt
       uv add pytest
       uv run pytest
+      rm pyproject.toml
+      rm uv.lock
+      rm -rf .venv
+      rm -rf __pycache__
+      rm -rf tests/__pycache__
+      rm -rf .pytest_cache
   waitFor: ['-']
 - id: 'tf init and apply'
   name: 'hashicorp/terraform:latest'
