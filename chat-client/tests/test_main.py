@@ -17,13 +17,23 @@ from main import convert_html_to_chat_api_format
 
 class TestChatClientFunctions:
     def test_convert_html_to_chat_api_format(self):
-        html = convert_html_to_chat_api_format("<h3>Libraries</h3><p>Some library info</p>")
+        html = convert_html_to_chat_api_format(
+            "<h3>Libraries</h3><p>Some library info</p>"
+        )
         assert html == "*Libraries*\nSome library info"
-        html = convert_html_to_chat_api_format('<h3>Feature</h3><p><code>This is code</code></p>')
-        assert html == '*Feature*\n`This is code`'
-        html = convert_html_to_chat_api_format('<h3>Feature</h3><p>This is <em>italics</em>.</p>')
-        assert html == '*Feature*\nThis is _italics_.'
-        html = convert_html_to_chat_api_format('<h3>Feature</h3><p>This is <em>italics</em> and <strong>bold</strong>.</p>')
-        assert html == '*Feature*\nThis is _italics_ and *bold*.'
-        html = convert_html_to_chat_api_format('<h3>Feature</h3><ul><li>Item 1</li><li>Item 2</li></ul>')
-        assert html == '*Feature*\n- Item 1\n- Item 2'
+        html = convert_html_to_chat_api_format(
+            "<h3>Feature</h3><p><code>This is code</code></p>"
+        )
+        assert html == "*Feature*\n`This is code`"
+        html = convert_html_to_chat_api_format(
+            "<h3>Feature</h3><p>This is <em>italics</em>.</p>"
+        )
+        assert html == "*Feature*\nThis is _italics_."
+        html = convert_html_to_chat_api_format(
+            "<h3>Feature</h3><p>This is <em>italics</em> and <strong>bold</strong>.</p>"
+        )
+        assert html == "*Feature*\nThis is _italics_ and *bold*."
+        html = convert_html_to_chat_api_format(
+            "<h3>Feature</h3><ul><li>Item 1</li><li>Item 2</li></ul>"
+        )
+        assert html == "*Feature*\n- Item 1\n- Item 2"

@@ -549,9 +549,7 @@ def convert_html_to_chat_api_format(html_content):
     message = md(html_content, strong_em_symbol="_", bullets="-")
     # Replace markdown header # with bold * * formatting that Chat API supports
     # https://developers.google.com/workspace/chat/format-messages#format-texts
-    message = re.sub(
-        r"#+ (?P<header>.*?)\n", r"*\g<header>*", message
-    )
+    message = re.sub(r"#+ (?P<header>.*?)\n", r"*\g<header>*", message)
     # Convert markdown hyperlinks to Chat API format
     message = re.sub(
         r"\[(?P<text>.*?)\]\((?P<link>.*?)\)",

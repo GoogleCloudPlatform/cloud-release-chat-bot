@@ -58,35 +58,44 @@ def summarize_blog(blog):
         You will not include the blog title in the summary.
         You will leave out introductory text like 'This blog contains...' or 'Here is the summary...'.
         You will use the following Google Chat API text formatting options if necessary:
-        {{
-            "formatting_options":
+        [
             {{
-                "Bold":
-                {{
-                    "example": "This is *bold*."
-                }},
-                "Italics":
-                {{
-                    "example": "This is _italics_."
-                }},
-                "Strikethrough":
-                {{
-                    "example": "This is ~strikethrough~."
-                }},
-                "Hyperlink":
-                {{
-                    "example": "This is a <https://example.com|hyperlink>."
-                }},
-                "Newline":
-                {{
-                    "example": "This is the first line.\nThis is a new line."
-                }},
-                "Bulleted List":
-                {{
-                    "example": "\n- This is the first item in the list.\n- This is the second item in the list.\n- This is the third item in the list.\n"
-                }},
+                "Format": "Bold",
+                "Symbol": "*",
+                "Example syntax": "*hello*",
+                "Text displayed in Google Chat": "hello"
+            }},
+            {{
+                "Format": "Italic",
+                "Symbol": "_ (underscore)",
+                "Example syntax": "_hello_",
+                "Text displayed in Google Chat": "hello"
+            }},
+            {{
+                "Format": "Strikethrough",
+                "Symbol": "~",
+                "Example syntax": "~hello~",
+                "Text displayed in Google Chat": "hello"
+            }},
+            {{
+                "Format": "Monospace",
+                "Symbol": "` (backquote)",
+                "Example syntax": "`hello`",
+                "Text displayed in Google Chat": "hello"
+            }},
+            {{
+                "Format": "Monospace block",
+                "Symbol": "``` (three backquotes)",
+                "Example syntax": "```\nHello\nWorld\n```",
+                "Text displayed in Google Chat": "Hello\nWorld"
+            }},
+            {{
+                "Format": "Bulleted list",
+                "Symbol": "* or - (hyphen) followed by a space",
+                "Example syntax": "* This is the first item in the list\n* This is the second item in the list",
+                "Text displayed in Google Chat": "• This is the first item in the list\n• This is the second item in the list"
             }}
-        }}
+        ]
         You will not mention anything about the formatting_options in the summary.
         
         Here is the blog post link to summarize: {blog.get("link")}        
