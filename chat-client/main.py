@@ -563,13 +563,19 @@ class GoogleChatMessageConverter(MarkdownConverter):
         return f"*{text}*"
 
     def convert_li(self, el, text, parent_tags):
-        # Add 4 more indentation spaces for nested bullets
+        # Add 8 more indentation spaces for nested bullets
+        extra_padding = " " * 8
         md_list = super().convert_li(el, text, parent_tags)
-        return re.sub(
-            r"\n(?P<indent>\s+?)-(?P<bullet>.*?)\n",
-            r"\n    \g<indent>-\g<bullet>\n",
-            md_list,
-        )
+        indented_bullets = []
+        for line in md_list.split("\n"):
+            indented_bullets.append(
+                re.sub(
+                    r"^(?P<indent>\s+?)-(?P<bullet>.*?)",
+                    rf"{extra_padding}\g<indent>-\g<bullet>",
+                    line,
+                )
+            )
+        return "\n".join(indented_bullets)
 
 
 # Convert HTML to Google Chat API formatted message
