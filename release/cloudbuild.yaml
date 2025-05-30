@@ -20,10 +20,10 @@ steps:
   args:
   - '-c'
   - |
-      uv init --bare
+      uv init --bare --python 3.12
       uv add -r requirements.txt
       uv add pytest
-      uv run --python 3.12 pytest
+      uv run pytest
       rm pyproject.toml
       rm uv.lock
       rm -rf .venv
@@ -38,10 +38,10 @@ steps:
   args:
   - '-c'
   - |
-      uv init --bare
+      uv init --bare --python 3.12
       uv add -r requirements.txt
       uv add pytest
-      uv run --python 3.12 pytest
+      uv run pytest
       rm pyproject.toml
       rm uv.lock
       rm -rf .venv
