@@ -562,6 +562,15 @@ class GoogleChatMessageConverter(MarkdownConverter):
         # Convert bold text to Chat API format
         return f"*{text}*"
 
+    def convert_li(self, el, text, parent_tags):
+        # Add 4 more indentation spaces for nested bullets
+        md_list = super().convert_li(el, text, parent_tags)
+        return re.sub(
+            r"\n(?P<indent>\s+?)-(?P<bullet>.*?)\n",
+            r"\n    \g<indent>-\g<bullet>\n",
+            md_list,
+        )
+
 
 # Convert HTML to Google Chat API formatted message
 def convert_html_to_chat_api_format(html):
