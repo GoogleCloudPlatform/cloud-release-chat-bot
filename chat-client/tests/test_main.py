@@ -37,3 +37,10 @@ class TestChatClientFunctions:
             "<h3>Feature</h3><ul><li>Item 1</li><li>Item 2</li></ul>"
         )
         assert html == "*Feature*\n- Item 1\n- Item 2"
+        html = convert_html_to_chat_api_format(
+            '<img src="https://cloud.google.com/gemini/images/vscode-context-drawer.png" alt="Context Drawer for Gemini Code Assist for VS Code">'
+        )
+        assert (
+            html
+            == "<https://cloud.google.com/gemini/images/vscode-context-drawer.png|Context Drawer for Gemini Code Assist for VS Code>"
+        )

@@ -24,7 +24,7 @@ import flask
 import functions_framework
 from google.apps.chat_v1.types import Message
 from google.cloud import firestore
-from markdownify import markdownify as md
+from markdownify import MarkdownConverter
 
 SUBSCRIBE_COMMAND_ID = 1
 SUBSCRIPTIONS_COMMAND_ID = 2
@@ -545,20 +545,33 @@ def record_product_subscription(space_id, products, categories):
         print(f"Error recording subscription: {e}", exc_info=True)
 
 
-def convert_html_to_chat_api_format(html_content):
-    message = md(html_content, strong_em_symbol="_", bullets="-")
-    # Replace markdown header # with bold * * formatting that Chat API supports
-    # https://developers.google.com/workspace/chat/format-messages#format-texts
-    message = re.sub(r"#+ (?P<header>.*?)\n", r"*\g<header>*", message)
-    # Convert markdown hyperlinks to Chat API format
-    message = re.sub(
-        r"\[(?P<text>.*?)\]\((?P<link>.*?)\)",
-        r"<\g<link>|\g<text>>",
-        message,
+class GoogleChatMessageConverter(MarkdownConverter):
+    """Custom Markdown converter for Google Chat API formatting."""
+
+    # Convert HTML images to a Google Chat API formatted hyperlink to the image
+    def convert_img(self, el, text, parent_tags):
+        alt = el.attrs.get("alt", None) or ""
+        src = el.attrs.get("src", None) or ""
+        return f"<{src}|{alt}>"
+
+    # Convert hyperlinks to Google Chat API format
+    def convert_a(self, el, text, parent_tags):
+        return f"<{el.get('href', '')}|{text}>"
+
+    def convert_strong(self, el, text, parent_tags):
+        # Convert bold text to Chat API format
+        return f"*{text}*"
+
+
+# Convert HTML to Google Chat API formatted message
+def convert_html_to_chat_api_format(html):
+    # Handle converting headers explicitly before returning because
+    # MarkdownConverter does not support overriding the convert_hN method.
+    return re.sub(
+        r"#+ (?P<header>.*?)\n",
+        r"*\g<header>*",
+        GoogleChatMessageConverter(strong_em_symbol="_", bullets="-").convert(html),
     )
-    # Convert markdown bold format to Chat API format
-    message = re.sub(r"__(?P<text>.*?)__", r"*\g<text>*", message)
-    return message
 
 
 def create_message(pubsub_message):
