@@ -18,31 +18,35 @@ from main import convert_html_to_chat_api_format
 class TestChatClientFunctions:
     def test_convert_html_to_chat_api_format(self):
         html = convert_html_to_chat_api_format(
+            "<h3>Libraries Updated</h3>"
+        )
+        assert html == "*Libraries Updated*"
+        html = convert_html_to_chat_api_format(
             "<h3>Libraries</h3><p>Some library info</p>"
         )
-        assert html == "*Libraries*\nSome library info"
+        assert html == "*Libraries*\n\nSome library info"
         html = convert_html_to_chat_api_format(
             "<h3>Feature</h3><p><code>This is code</code></p>"
         )
-        assert html == "*Feature*\n`This is code`"
+        assert html == "*Feature*\n\n`This is code`"
         html = convert_html_to_chat_api_format(
             "<h3>Feature</h3><p>This is <em>italics</em>.</p>"
         )
-        assert html == "*Feature*\nThis is _italics_."
+        assert html == "*Feature*\n\nThis is _italics_."
         html = convert_html_to_chat_api_format(
             "<h3>Feature</h3><p>This is <em>italics</em> and <strong>bold</strong>.</p>"
         )
-        assert html == "*Feature*\nThis is _italics_ and *bold*."
+        assert html == "*Feature*\n\nThis is _italics_ and *bold*."
         html = convert_html_to_chat_api_format(
             "<h3>Feature</h3><ul><li>Item 1</li><li>Item 2</li></ul>"
         )
-        assert html == "*Feature*\n- Item 1\n- Item 2"
+        assert html == "*Feature*\n\n- Item 1\n- Item 2"
         html = convert_html_to_chat_api_format(
             "<h3>Feature</h3><ul><li>Item 1<ul><li>Sub Item1</li><li>Sub Item2</li></ul></li><li>Item 2</li></ul>"
         )
         assert (
             html
-            == "*Feature*\n- Item 1\n          - Sub Item1\n          - Sub Item2\n- Item 2"
+            == "*Feature*\n\n- Item 1\n          - Sub Item1\n          - Sub Item2\n- Item 2"
         )
         html = convert_html_to_chat_api_format(
             '<img src="https://cloud.google.com/gemini/images/vscode-context-drawer.png" alt="Context Drawer for Gemini Code Assist for VS Code">'

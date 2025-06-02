@@ -583,9 +583,10 @@ def convert_html_to_chat_api_format(html):
     # Handle converting headers explicitly before returning because
     # MarkdownConverter does not support overriding the convert_hN method.
     return re.sub(
-        r"#+ (?P<header>.*?)\n",
+        r"^#+ (?P<header>.*?)$",
         r"*\g<header>*",
         GoogleChatMessageConverter(strong_em_symbol="_", bullets="-").convert(html),
+        flags=re.MULTILINE,
     )
 
 
