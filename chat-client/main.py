@@ -582,12 +582,22 @@ class GoogleChatMessageConverter(MarkdownConverter):
 def convert_html_to_chat_api_format(html):
     # Handle converting headers explicitly before returning because
     # MarkdownConverter does not support overriding the convert_hN method.
-    return re.sub(
+    message = re.sub(
         r"^#+ (?P<header>.*?)$",
         r"*\g<header>*",
         GoogleChatMessageConverter(strong_em_symbol="_", bullets="-").convert(html),
         flags=re.MULTILINE,
     )
+    # Prioritize hyperlinks over code blocks whenever they're both present on the same text
+    # because Google Chat API does not support text formatted with both code blocks and hyperlinks.
+    # The following will strip backticks whenever they're placed on text within hyperlinks.
+    message = re.sub(
+        r"<(?P<link>.*?)\|`(?P<text>.*?)`>",
+        r"<\g<link>|\g<text>>",
+        message,
+        flags=re.MULTILINE,
+    )
+    return message
 
 
 def create_message(pubsub_message):

@@ -55,3 +55,8 @@ class TestChatClientFunctions:
             html
             == "<https://cloud.google.com/gemini/images/vscode-context-drawer.png|Context Drawer for Gemini Code Assist for VS Code>"
         )
+        html = '<a href="https://cloud.google.com/bigquery/docs/reference/standard-sql/load-statements"><code>LOAD DATA</code></a>'
+        assert (
+            convert_html_to_chat_api_format(html)
+            == "<https://cloud.google.com/bigquery/docs/reference/standard-sql/load-statements|LOAD DATA>"
+        )
