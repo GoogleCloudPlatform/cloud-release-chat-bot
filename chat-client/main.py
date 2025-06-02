@@ -22,7 +22,9 @@ from typing import Any, Mapping
 import client_utils
 import flask
 import functions_framework
+from google.apps.chat_v1.types import Message
 from google.cloud import firestore
+from markdownify import MarkdownConverter
 
 SUBSCRIBE_COMMAND_ID = 1
 SUBSCRIPTIONS_COMMAND_ID = 2
@@ -543,64 +545,86 @@ def record_product_subscription(space_id, products, categories):
         print(f"Error recording subscription: {e}", exc_info=True)
 
 
-def create_card_message(pubsub_message):
+class GoogleChatMessageConverter(MarkdownConverter):
+    """Custom Markdown converter for Google Chat API formatting."""
+
+    # Convert HTML images to a Google Chat API formatted hyperlink to the image
+    def convert_img(self, el, text, parent_tags):
+        alt = el.attrs.get("alt", None) or ""
+        src = el.attrs.get("src", None) or ""
+        return f"<{src}|{alt}>"
+
+    # Convert hyperlinks to Google Chat API format
+    def convert_a(self, el, text, parent_tags):
+        return f"<{el.get('href', '')}|{text}>"
+
+    def convert_strong(self, el, text, parent_tags):
+        # Convert bold text to Chat API format
+        return f"*{text}*"
+
+    def convert_li(self, el, text, parent_tags):
+        # Add 8 more indentation spaces for nested bullets
+        extra_padding = " " * 8
+        md_list = super().convert_li(el, text, parent_tags)
+        indented_bullets = []
+        for line in md_list.split("\n"):
+            indented_bullets.append(
+                re.sub(
+                    r"^(?P<indent>\s+?)-(?P<bullet>.*?)",
+                    rf"{extra_padding}\g<indent>-\g<bullet>",
+                    line,
+                )
+            )
+        return "\n".join(indented_bullets)
+
+
+# Convert HTML to Google Chat API formatted message
+def convert_html_to_chat_api_format(html):
+    # Handle converting headers explicitly before returning because
+    # MarkdownConverter does not support overriding the convert_hN method.
+    return re.sub(
+        r"#+ (?P<header>.*?)\n",
+        r"*\g<header>*",
+        GoogleChatMessageConverter(strong_em_symbol="_", bullets="-").convert(html),
+    )
+
+
+def create_message(pubsub_message):
     if "release_note" in pubsub_message:
         release_note = pubsub_message.get("release_note")
         title = f"New Release from {release_note.get('product')}"
         subtitle = release_note.get("date")
-        # Replace html header <h3> with <b> formatting that Chat API supports
-        # https://developers.google.com/apps-script/add-ons/concepts/widgets#text_formatting
-        card_msg = re.sub(
-            r"<h3>(?P<header>.*?)</h3>", r"<b>\g<header></b>", release_note.get("html")
-        )
+        message = convert_html_to_chat_api_format(release_note.get("html"))
         link = release_note.get("link")
     elif "blog" in pubsub_message:
         blog = pubsub_message.get("blog")
         title = f"New Blog from {blog.get('category_name')}"
         subtitle = blog.get("date")
-        card_msg = f"<b>{blog.get('title')}</b><br><br>{blog.get('summary')}"
+        message = f"*{blog.get('title')}*\n\n{blog.get('summary')}"
         link = blog.get("link")
     else:
         title = "An Error Occurred"
         subtitle = ""
-        card_msg = f"An unexpected error occurred."
+        message = f"An unexpected error occurred."
         link = ""
 
-    return {
-        "thread": {"threadKey": f"{link}"},
-        "cardsV2": [
+    return Message(
+        thread={"thread_key": link},
+        text=f"{title}\n{subtitle}\n\n{message}",
+        accessory_widgets=[
             {
-                "card": {
-                    "header": {
-                        "title": f"{title}",
-                        "subtitle": subtitle,
-                    },
-                    "sections": [
+                "button_list": {
+                    "buttons": [
                         {
-                            "widgets": [
-                                {
-                                    "textParagraph": {
-                                        "text": card_msg,
-                                    }
-                                },
-                                {"divider": {}},
-                                {
-                                    "decoratedText": {
-                                        "text": f"<a href='{link}'>Read more</a>",
-                                        "startIcon": {
-                                            "materialIcon": {
-                                                "name": "link",
-                                            }
-                                        },
-                                    }
-                                },
-                            ],
+                            "text": "Read more",
+                            "icon": {"material_icon": {"name": "link"}},
+                            "on_click": {"open_link": {"url": link}},
                         }
-                    ],
+                    ]
                 }
             }
         ],
-    }
+    )
 
 
 def handle_pubsub_message(req: flask.Request):
@@ -614,10 +638,10 @@ def handle_pubsub_message(req: flask.Request):
         )
         print(f"Processing Pub/Sub message: {pubsub_message}")
         space_id = pubsub_message.get("space_id")
-        card_message = create_card_message(pubsub_message)
+        message = create_message(pubsub_message)
 
-        print(f"Sending the following card to space {space_id}:\n\n{card_message}")
-        client_utils.send_chat_message(space_id, card_message)
+        print(f"Sending the following message to space {space_id}:\n\n{message}")
+        client_utils.send_chat_message(space_id, message)
         return ("Done", 200)
 
     except Exception as e:

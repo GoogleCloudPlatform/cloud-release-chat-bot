@@ -13,6 +13,42 @@
 # limitations under the License.
  
 steps:
+- id : 'unit test chat-client'
+  name: 'ghcr.io/astral-sh/uv:debian'
+  dir: 'chat-client'
+  entrypoint: 'sh'
+  args:
+  - '-c'
+  - |
+      uv init --bare --python 3.12
+      uv add -r requirements.txt
+      uv add pytest
+      uv run pytest
+      rm pyproject.toml
+      rm uv.lock
+      rm -rf .venv
+      rm -rf __pycache__
+      rm -rf tests/__pycache__
+      rm -rf .pytest_cache
+  waitFor: ['-']
+- id : 'unit test check-release'
+  name: 'ghcr.io/astral-sh/uv:debian'
+  dir: 'check-release-notes'
+  entrypoint: 'sh'
+  args:
+  - '-c'
+  - |
+      uv init --bare --python 3.12
+      uv add -r requirements.txt
+      uv add pytest
+      uv run pytest
+      rm pyproject.toml
+      rm uv.lock
+      rm -rf .venv
+      rm -rf __pycache__
+      rm -rf tests/__pycache__
+      rm -rf .pytest_cache
+  waitFor: ['-']
 - id: 'tf init and apply'
   name: 'hashicorp/terraform:latest'
   entrypoint: 'sh'
@@ -22,6 +58,9 @@ steps:
   - |
       terraform init -lock-timeout=300s --backend-config="bucket=$_TFSTATE_BUCKET"
       terraform apply -lock-timeout=300s -var="project_id=$PROJECT_ID" --auto-approve
+  waitFor:
+  - 'unit test chat-client'
+  - 'unit test check-release'
 
 options:
   logging: CLOUD_LOGGING_ONLY

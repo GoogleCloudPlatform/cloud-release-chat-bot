@@ -77,15 +77,24 @@ def get_todays_release_note(rss_url):
         product = re.sub(
             " - release notes", "", soup.find("title").contents[0], flags=re.IGNORECASE
         )
-        updated = soup.find("updated").contents[0]
-        item = soup.find("entry")
+        item = soup.find("entry") or soup.find("item")
         if item:
-            title = item.find("title").contents[0]
-            release_note = item.find("content").contents[0]
+            if item.find("updated"):
+                updated = item.find("updated").contents[0]
+                updated_date = datetime.strptime(
+                    updated.split("T")[0], "%Y-%m-%d"
+                ).date()
+            elif item.find("pubDate"):
+                updated = item.find("pubDate").contents[0]
+                updated_date = datetime.strptime(
+                    updated.split(", ")[1].strip(), "%d %b %Y %X %Z"
+                ).date()
+            # Get the release note content
+            release_note = item.find("content") or item.find("description")
+            release_note = release_note.contents[0]
             release_note = remove_libraries(release_note)
-            link = item.find("link")["href"]
-            # Parse the updated date of the release note
-            updated_date = datetime.strptime(updated.split("T")[0], "%Y-%m-%d").date()
+            link = item.find("link").get("href") or item.find("link").contents[0]
+
             today_date = (
                 datetime.now()
                 .astimezone(timezone("US/Eastern"))
@@ -171,7 +180,7 @@ def get_new_release_notes(latest_release_notes):
                 # Sometimes a new release note is actually a retraction of a subsection within the release note.
                 # The following checks if the html field is populated before adding it to new_release_notes
                 # so that users are not alerted for a retraction.
-                if new_release_note_subsections.get('html'):
+                if new_release_note_subsections.get("html"):
                     new_release_notes[product] = new_release_note_subsections
         else:
             save_release_note_to_firestore(product, latest_release_notes.get(product))
@@ -243,7 +252,6 @@ def http_request(request):
         Response object using `make_response`
         <https://flask.palletsprojects.com/en/1.1.x/api/#flask.make_response>.
     """
-    rss_url = "https://cloud.google.com/feeds/bigquery-release-notes.xml"
     todays_release_notes_dict = {}
     with futures.ThreadPoolExecutor() as executor:
         todays_release_notes = executor.map(get_todays_release_note, rss_urls)

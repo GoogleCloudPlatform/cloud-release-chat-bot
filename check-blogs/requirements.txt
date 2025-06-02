@@ -1,5 +1,4 @@
 functions-framework==3.*
-google-api-python-client
 google-cloud-firestore
 google-cloud-pubsub
 beautifulsoup4
