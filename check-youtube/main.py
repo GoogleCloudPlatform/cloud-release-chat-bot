@@ -104,7 +104,7 @@ def summarize_video(video):
         """
         response = client.models.generate_content(
             # https://ai.google.dev/gemini-api/docs/models
-            model="gemini-2.5-pro-preview-06-05",
+            model="gemini-2.5-pro-preview-05-06",
             contents=prompt,
         )
         if response.text:  # Check if there's a valid response
