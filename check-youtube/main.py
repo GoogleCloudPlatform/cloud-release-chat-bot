@@ -58,10 +58,10 @@ def get_videos_from_rss(rss_url):
             pub_date_str = video.find("published").text
             pub_date = (
                 datetime.fromisoformat(pub_date_str)
-                .astimezone(timezone("US/Eastern"))
+                .astimezone(timezone("US/Central"))
                 .date()
             )
-            today_date = datetime.now(timezone("US/Eastern")).date()
+            today_date = datetime.now(timezone("US/Central")).date()
 
             if pub_date == today_date:
                 video_map[video_id] = {
