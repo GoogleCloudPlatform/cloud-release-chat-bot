@@ -539,7 +539,7 @@ def create_message(pubsub_message):
         title = f"New Video from {video.get('channel_name')}"
         subtitle = video.get("date")
         # Video messages don't have a summary, so we just use the title.
-        message = f"*{video.get('title')}*"
+        message = f"*{video.get('title')}*\n\n{video.get('link')}"
         link = video.get("link")
     else:
         title = "An Error Occurred"
