@@ -178,7 +178,7 @@ def get_videos_from_rss(rss_url):
 
 def get_stored_videos():
     """Retrieves the map of already processed videos from Firestore."""
-    doc_ref = firestore_client.collection("youtube_video_updates").document("videos")
+    doc_ref = firestore_client.collection("cloud_release_videos").document("videos")
     doc = doc_ref.get()
     return doc.to_dict() if doc.exists else {}
 
@@ -240,7 +240,7 @@ def send_new_video_notifications():
     # If there were new videos, update the Firestore document with all videos
     # found today to prevent duplicate notifications.
     if new_videos_map:
-        doc_ref = firestore_client.collection("youtube_video_updates").document(
+        doc_ref = firestore_client.collection("cloud_release_videos").document(
             "videos"
         )
         # We merge with existing stored videos to keep a running list
