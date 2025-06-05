@@ -17,6 +17,7 @@ rss_urls = [
     "https://www.youtube.com/feeds/videos.xml?channel_id=" + channel_id
     for channel_id in [
         "UCTMRxtyHoE3LPcrl-kT4AQQ", # Google Cloud
-        "UCJS9pqu9BzkAMNTmzNMNhvg"  # Google Cloud Tech
+        "UCJS9pqu9BzkAMNTmzNMNhvg", # Google Cloud Tech
+        "UCXYZWHSFKBpF0WUQEgEA8qA"  # Google Cloud Events
     ]
 ]
