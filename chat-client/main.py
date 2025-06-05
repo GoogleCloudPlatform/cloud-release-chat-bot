@@ -334,7 +334,7 @@ def handle_templatized_youtube_inputs(channels):
     initial_channels_set = set(channels)
     if "All YouTube Channels" in initial_channels_set:
         # Assumes client_utils.youtube_channels contains all channel names including the "All" tag
-        return sorted(list(set(client_utils.youtube_channels))), True
+        return sorted(list(set(client_utils.channels))), True
     # No other templating for youtube channels, just return the list
     return sorted(list(initial_channels_set)), False
 
