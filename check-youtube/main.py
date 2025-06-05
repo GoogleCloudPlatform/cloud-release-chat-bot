@@ -68,7 +68,7 @@ def summarize_video(video):
                 "Format": "Timestamp Link",
                 "Symbol": "<link|text>",
                 "Example syntax": "[<{video.get("link")}&t=84s|1:24>]",
-                "Text displayed in Google Chat": "google"
+                "Link displayed in Google Chat": "[1:24]"
             }},
             {{
                 "Format": "Bold",
