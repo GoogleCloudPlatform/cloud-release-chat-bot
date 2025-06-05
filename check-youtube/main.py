@@ -55,6 +55,7 @@ def summarize_video(video):
         additional_prompt = f"""
         You are a helpful assistant that concisely summarizes Google Cloud YouTube videos.
         You will be provided with a Youtube link.
+        You will provide up to three (3) timestamp links in the summary if necessary.
         If you use bulleted lists in the summary, they MUST be one-level bulleted lists.
         No nested lists are allowed!
         Every list item in a bulleted list must start with an asterisk followed by ONLY ONE SPACE and then text.
@@ -109,9 +110,8 @@ def summarize_video(video):
 
         # Prepare content to send to the model
         contents = [
-            youtube_video,
-            types.Part.from_text(text="""Provide a summary of the video."""),
-            additional_prompt,
+            types.Part.from_text(text=additional_prompt),
+            youtube_video
         ]
 
         response = client.models.generate_content(
