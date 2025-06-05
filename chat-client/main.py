@@ -400,15 +400,8 @@ def submitDialog(event):
 # YOUTUBE-UPDATE: New function to record subscriptions to the youtube inverted index
 def record_space_youtube_subscription(space_id, channel_name):
     try:
-        # Assumes you have a map from channel name to channel ID in client_utils
-        # to ensure stable document IDs in Firestore.
-        channel_id = client_utils.youtube_channel_details.get(channel_name, {}).get("id")
-        if not channel_id:
-            print(f"Error: Channel ID not found for channel name '{channel_name}'")
-            return
-
         subscriptions_ref = DB.collection("youtube_channel_subscriptions")
-        channel_doc_ref = subscriptions_ref.document(channel_id)
+        channel_doc_ref = subscriptions_ref.document(channel_name)
         channel_doc = channel_doc_ref.get()
 
         if channel_doc.exists:
