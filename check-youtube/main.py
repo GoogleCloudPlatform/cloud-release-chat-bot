@@ -22,7 +22,7 @@ import requests
 from bs4 import BeautifulSoup
 from google.cloud import firestore, pubsub_v1
 from pytz import timezone
-from youtube_rss_urls import rss_urls
+from channel_rss_urls import rss_urls
 
 firestore_client = firestore.Client(project=os.environ.get("GCP_PROJECT_ID"))
 batch_settings = pubsub_v1.types.BatchSettings(
