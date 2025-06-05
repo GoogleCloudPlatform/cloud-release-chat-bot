@@ -128,13 +128,13 @@ def send_new_video_notifications():
     for video_id, video in new_videos_map.items():
         print(f"New video found: {video['title']} from {video['channel_name']}")
         # Use channel_id for more reliable document matching
-        channel_doc = subscriptions_ref.document(video["channel_id"]).get()
+        channel_doc = subscriptions_ref.document(video["channel_name"]).get()
         if channel_doc.exists:
             spaces_subscribed = channel_doc.to_dict().get("spaces_subscribed", [])
             for space_id in spaces_subscribed:
                 publish_to_pubsub(space_id, video)
         else:
-            print(f"No subscriptions found for channel ID: {video['channel_id']}")
+            print(f"No subscriptions found for channel ID: {video['channel_name']}")
 
     # Wait for all Pub/Sub messages to be published
     futures.wait(publish_futures, return_when=futures.ALL_COMPLETED)
