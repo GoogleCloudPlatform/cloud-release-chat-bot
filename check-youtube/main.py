@@ -23,6 +23,13 @@ from bs4 import BeautifulSoup
 from google.cloud import firestore, pubsub_v1
 from pytz import timezone
 from channel_rss_urls import rss_urls
+from google import genai
+
+
+client = genai.Client(
+    vertexai=True,
+    location="us-central1",
+)
 
 firestore_client = firestore.Client(project=os.environ.get("GCP_PROJECT_ID"))
 batch_settings = pubsub_v1.types.BatchSettings(
@@ -41,6 +48,75 @@ publish_futures = []
 def callback(future: pubsub_v1.publisher.futures.Future) -> None:
     message_id = future.result()
     print(message_id)
+
+def summarize_video(video):
+    try:
+        prompt = f"""
+        You are a helpful assistant that concisely summarizes Google Cloud video posts.
+        You will be provided with a video post link.
+        If you use bulleted lists in the summary, they MUST be one-level bulleted lists.
+        No nested lists are allowed!
+        Every list item in a bulleted list must start with an asterisk followed by ONLY ONE SPACE and then text.
+        You will not include the video title in the summary.
+        You will leave out introductory text like 'This video contains...' or 'Here is the summary...'.
+        You will use the following Google Chat API text formatting options if necessary:
+        [
+            {{
+                "Format": "Bold",
+                "Symbol": "*",
+                "Example syntax": "*hello*",
+                "Text displayed in Google Chat": "hello"
+            }},
+            {{
+                "Format": "Italic",
+                "Symbol": "_ (underscore)",
+                "Example syntax": "_hello_",
+                "Text displayed in Google Chat": "hello"
+            }},
+            {{
+                "Format": "Strikethrough",
+                "Symbol": "~",
+                "Example syntax": "~hello~",
+                "Text displayed in Google Chat": "hello"
+            }},
+            {{
+                "Format": "Monospace",
+                "Symbol": "` (backquote)",
+                "Example syntax": "`hello`",
+                "Text displayed in Google Chat": "hello"
+            }},
+            {{
+                "Format": "Monospace block",
+                "Symbol": "``` (three backquotes)",
+                "Example syntax": "```\nHello\nWorld\n```",
+                "Text displayed in Google Chat": "Hello\nWorld"
+            }},
+            {{
+                "Format": "Bulleted list",
+                "Symbol": "* or - (hyphen) followed by only 1 space and then the text",
+                "Example syntax": "* This is the first item in the list\n* This is the second item in the list",
+                "Text displayed in Google Chat": "• This is the first item in the list\n• This is the second item in the list"
+            }}
+        ]
+        You will not mention anything about the formatting_options in the summary.
+        
+        Here is the video post link to summarize: {video.get("link")}        
+        """
+        response = client.models.generate_content(
+            # https://ai.google.dev/gemini-api/docs/models
+            model="gemini-2.5-pro-preview-05-06",
+            contents=prompt,
+        )
+        if response.text:  # Check if there's a valid response
+            video["summary"] = response.text
+            return response.text
+        else:
+            print(f"Gemini returned an empty response for: {video.get('link')}")
+            return None
+
+    except Exception as e:
+        print(f"Error summarizing video {video.get('link')}: {e}")
+        return None
 
 
 def get_videos_from_rss(rss_url):
@@ -123,6 +199,8 @@ def send_new_video_notifications():
             all_videos_map.update(video_map)
 
     new_videos_map = get_new_videos(all_videos_map)
+    with futures.ThreadPoolExecutor() as executor:
+        executor.map(summarize_video, new_videos_map.values())
     subscriptions_ref = firestore_client.collection("youtube_channel_subscriptions")
 
     for video_id, video in new_videos_map.items():
