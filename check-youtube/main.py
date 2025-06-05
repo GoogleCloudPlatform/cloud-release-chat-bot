@@ -52,8 +52,8 @@ def callback(future: pubsub_v1.publisher.futures.Future) -> None:
 def summarize_video(video):
     try:
         prompt = f"""
-        You are a helpful assistant that concisely summarizes Google Cloud video posts.
-        You will be provided with a video post link.
+        You are a helpful assistant that concisely summarizes Google Cloud YouTube videos.
+        You will be provided with a Youtube link.
         If you use bulleted lists in the summary, they MUST be one-level bulleted lists.
         No nested lists are allowed!
         Every list item in a bulleted list must start with an asterisk followed by ONLY ONE SPACE and then text.
@@ -100,11 +100,11 @@ def summarize_video(video):
         ]
         You will not mention anything about the formatting_options in the summary.
         
-        Here is the video post link to summarize: {video.get("link")}        
+        Here is the Youtube link: {video.get("link")}        
         """
         response = client.models.generate_content(
             # https://ai.google.dev/gemini-api/docs/models
-            model="gemini-2.5-pro-preview-05-06",
+            model="gemini-2.5-pro-preview-06-05",
             contents=prompt,
         )
         if response.text:  # Check if there's a valid response
