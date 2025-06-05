@@ -55,7 +55,7 @@ def summarize_video(video):
         additional_prompt = f"""
         You are a helpful assistant that concisely summarizes Google Cloud YouTube videos.
         You will be provided with a Youtube link.
-        You will provide up to three (3) timestamp links WITHIN THE GIVEN video using the link format below.
+        You will provide up to three (3) key timestamp links WITHIN THE PROVIDED VIDEO using the timestamp link format below.
         If you use bulleted lists in the summary, they MUST be one-level bulleted lists.
         No nested lists are allowed!
         Every list item in a bulleted list must start with an asterisk followed by ONLY ONE SPACE and then text.
@@ -64,9 +64,9 @@ def summarize_video(video):
         You will use the following Google Chat API text formatting options if necessary:
         [
             {{
-                "Format": "Link",
+                "Format": "Timestamp Link",
                 "Symbol": "<link|text>",
-                "Example syntax": "<{video.get("link")}&t=84s|[1:24]>",
+                "Example syntax": "[<{video.get("link")}&t=84s|1:24>]",
                 "Text displayed in Google Chat": "google"
             }},
             {{
