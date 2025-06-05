@@ -56,6 +56,13 @@ data "archive_file" "function_source_blog" {
   source_dir  = format(".././%s/", var.blog_name)
 }
 
+data "archive_file" "function_source_youtube" {
+  type        = "zip"
+  output_path = format("%s.zip", var.youtube_name)
+  source_dir  = format(".././%s/", var.youtube_name)
+}
+
+
 data "archive_file" "function_source_client" {
   type        = "zip"
   output_path = format("%s.zip", var.client_name)
@@ -75,6 +82,14 @@ resource "google_storage_bucket_object" "function_zip_object_blog" {
   name         = "cloudfunctions_source/${data.archive_file.function_source_blog.output_md5}-${basename(data.archive_file.function_source_blog.output_path)}"
   bucket       = google_storage_bucket.bucket.name
   source       = data.archive_file.function_source_blog.output_path
+  content_type = "application/zip"
+}
+
+resource "google_storage_bucket_object" "function_zip_object_youtube" {
+  depends_on   = [google_storage_bucket.bucket]
+  name         = "cloudfunctions_source/${data.archive_file.function_source_youtube.output_md5}-${basename(data.archive_file.function_source_youtube.output_path)}"
+  bucket       = google_storage_bucket.bucket.name
+  source       = data.archive_file.function_source_youtube.output_path
   content_type = "application/zip"
 }
 
@@ -125,6 +140,33 @@ resource "google_cloudfunctions2_function" "blog_function" {
       storage_source {
         bucket = google_storage_bucket.bucket.name
         object = google_storage_bucket_object.function_zip_object_blog.name
+      }
+    }
+  }
+  service_config {
+    max_instance_count = 1
+    available_memory   = "4Gi"
+    available_cpu      = "8"
+    timeout_seconds    = var.timeout
+    environment_variables = {
+      GCP_PROJECT_ID     = var.project_id
+      PUB_SUB_TOPIC_NAME = var.pub_sub_topic_name
+    }
+  }
+}
+
+resource "google_cloudfunctions2_function" "youtube_video_function" {
+  depends_on = [google_storage_bucket_object.function_zip_object_youtube]
+  location   = var.region
+  name       = var.youtube_name
+  project    = var.project_id
+  build_config {
+    runtime     = var.runtime
+    entry_point = "http_request"
+    source {
+      storage_source {
+        bucket = google_storage_bucket.bucket.name
+        object = google_storage_bucket_object.function_zip_object_youtube.name
       }
     }
   }
@@ -203,6 +245,16 @@ resource "google_cloud_run_service_iam_binding" "cloud_run_service_agent_blog" {
   members    = ["serviceAccount:${google_service_account.service_account.email}"]
 }
 
+# Grant Cloud Run Invoker role on the YouTube video Cloud Run function
+resource "google_cloud_run_service_iam_binding" "cloud_run_service_agent_youtube" {
+  depends_on = [google_service_account.service_account]
+  project    = var.project_id
+  location   = var.region
+  service    = google_cloudfunctions2_function.youtube_video_function.name
+  role       = "roles/run.invoker"
+  members    = ["serviceAccount:${google_service_account.service_account.email}"]
+}
+
 resource "google_project_iam_member" "service_account_token_creator_binding" {
   project = var.project_id
   member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-pubsub.iam.gserviceaccount.com"
@@ -264,6 +316,27 @@ resource "google_cloud_scheduler_job" "blog_job" {
 
     oidc_token {
       audience              = google_cloudfunctions2_function.blog_function.url
+      service_account_email = google_service_account.service_account.email
+    }
+  }
+}
+
+# Schedule the YouTube video function to run periodically
+resource "google_cloud_scheduler_job" "youtube_video_job" {
+  name             = "refresh-youtube-videos"
+  project          = var.project_id
+  region           = var.region
+  description      = "Refresh YouTube videos every hour"
+  schedule         = "0 * * * *" # Runs at the top of every hour
+  time_zone        = "America/New_York"
+  attempt_deadline = "320s"
+
+  http_target {
+    http_method = "GET"
+    uri         = google_cloudfunctions2_function.youtube_video_function.url
+
+    oidc_token {
+      audience              = google_cloudfunctions2_function.youtube_video_function.url
       service_account_email = google_service_account.service_account.email
     }
   }
