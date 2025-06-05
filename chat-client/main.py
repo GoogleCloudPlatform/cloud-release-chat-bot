@@ -240,7 +240,7 @@ def openInitialDialog(request_json):
 
         # YOUTUBE-UPDATE: --- Generate YouTube Channel Dialog Items ---
         youtube_channels = []
-        all_possible_youtube_channels = getattr(client_utils, "youtube_channels", [])
+        all_possible_youtube_channels = getattr(client_utils, "channels", [])
 
         if all_youtube_override:
             for channel in all_possible_youtube_channels:
@@ -273,7 +273,7 @@ def openInitialDialog(request_json):
         # Fallback with empty lists
         notes = [{"text": p, "value": p, "selected": False} for p in getattr(client_utils, "google_cloud_products", [])]
         blogs = [{"text": c, "value": c, "selected": False} for c in getattr(client_utils, "categories", [])]
-        youtube_channels = [{"text": y, "value": y, "selected": False} for y in getattr(client_utils, "youtube_channels", [])]
+        youtube_channels = [{"text": y, "value": y, "selected": False} for y in getattr(client_utils, "channels", [])]
         return client_utils.retrieve_dialog_response(
             notes, blogs, youtube_channels, error="Failed to load subscriptions."
         )
