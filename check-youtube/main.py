@@ -102,6 +102,7 @@ def summarize_video(video):
         
         Here is the Youtube link: {video.get("link")}        
         """
+        print(f"Prompt sent for video: {prompt}")
         response = client.models.generate_content(
             # https://ai.google.dev/gemini-api/docs/models
             model="gemini-2.5-pro-preview-05-06",
