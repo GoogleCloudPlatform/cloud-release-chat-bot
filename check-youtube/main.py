@@ -24,6 +24,7 @@ from google.cloud import firestore, pubsub_v1
 from pytz import timezone
 from channel_rss_urls import rss_urls
 from google import genai
+from google.genai import types
 
 
 client = genai.Client(
@@ -51,7 +52,7 @@ def callback(future: pubsub_v1.publisher.futures.Future) -> None:
 
 def summarize_video(video):
     try:
-        prompt = f"""
+        additional_prompt = f"""
         You are a helpful assistant that concisely summarizes Google Cloud YouTube videos.
         You will be provided with a Youtube link.
         If you use bulleted lists in the summary, they MUST be one-level bulleted lists.
@@ -100,13 +101,23 @@ def summarize_video(video):
         ]
         You will not mention anything about the formatting_options in the summary.
         
-        Here is the Youtube link: {video.get("link")}        
         """
-        print(f"Prompt sent for video: {prompt}")
+        youtube_video = types.Part.from_uri(
+            file_uri=video.get("link"),
+            mime_type="video/*",
+        )
+
+        # Prepare content to send to the model
+        contents = [
+            youtube_video,
+            types.Part.from_text(text="""Provide a summary of the video."""),
+            additional_prompt,
+        ]
+
         response = client.models.generate_content(
             # https://ai.google.dev/gemini-api/docs/models
             model="gemini-2.5-pro-preview-05-06",
-            contents=prompt,
+            contents=contents,
         )
         if response.text:  # Check if there's a valid response
             video["summary"] = response.text
