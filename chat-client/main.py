@@ -28,9 +28,6 @@ from markdownify import MarkdownConverter
 
 SUBSCRIBE_COMMAND_ID = 1
 SUBSCRIPTIONS_COMMAND_ID = 2
-# YOUTUBE-UPDATE: A new command ID for YouTube specific subscriptions if needed,
-# or you can just rely on the main /subscribe dialog.
-# For now, we will just add it to the main dialog.
 
 DB = firestore.Client(os.environ.get("GCP_PROJECT_ID"))
 
@@ -66,7 +63,6 @@ def chat_app(req: flask.Request) -> Mapping[str, Any]:
                 doc_dict = products_doc.to_dict()
                 products = doc_dict.get("products_subscribed", [])
                 categories = doc_dict.get("categories_subscribed", [])
-                # YOUTUBE-UPDATE: Get subscribed youtube channels to properly unsubscribe
                 youtube_channels = doc_dict.get("youtube_channels_subscribed", [])
                 with futures.ThreadPoolExecutor() as executor:
                     unsubscribe_space_product_futures = [
@@ -87,7 +83,6 @@ def chat_app(req: flask.Request) -> Mapping[str, Any]:
                         )
                         for category in categories
                     ]
-                    # YOUTUBE-UPDATE: Unsubscribe from youtube channels
                     unsubscribe_space_youtube_futures = [
                         executor.submit(
                             unsubscribe_space_youtube,
@@ -100,7 +95,7 @@ def chat_app(req: flask.Request) -> Mapping[str, Any]:
                 futures.wait(
                     unsubscribe_space_product_futures
                     + unsubscribe_space_blogs_futures
-                    + unsubscribe_space_youtube_futures # YOUTUBE-UPDATE
+                    + unsubscribe_space_youtube_futures
                 )
                 product_doc_ref.delete()
                 print(
@@ -150,8 +145,6 @@ BLOG_CATEGORY_MAP = {
     "All Data Blogs": getattr(client_utils, "data_categories", []),
 }
 
-# YOUTUBE-UPDATE: Add a map for YouTube channels.
-# This assumes you have a list of all channel names in client_utils.py
 YOUTUBE_CHANNEL_MAP = {
     "All YouTube Channels": getattr(client_utils, "channels", []),
 }
@@ -178,7 +171,7 @@ def openInitialDialog(request_json):
         # Default empty sets
         products_subscribed_set = set()
         categories_subscribed_set = set()
-        youtube_channels_subscribed_set = set() # YOUTUBE-UPDATE
+        youtube_channels_subscribed_set = set()
         doc_exists = False
 
         space_name = request_json["chat"]["appCommandPayload"]["space"]["name"].replace("/", "_")
@@ -191,19 +184,15 @@ def openInitialDialog(request_json):
             doc_data = products_doc.to_dict()
             products_subscribed_set = set(doc_data.get("products_subscribed", []))
             categories_subscribed_set = set(doc_data.get("categories_subscribed", []))
-            # YOUTUBE-UPDATE: Get youtube channel subscriptions
             youtube_channels_subscribed_set = set(doc_data.get("youtube_channels_subscribed", []))
 
 
         all_products_override = "All Products" in products_subscribed_set
         all_blogs_override = "All Blogs" in categories_subscribed_set
-        # YOUTUBE-UPDATE: Check for YouTube override
         all_youtube_override = "All YouTube Channels" in youtube_channels_subscribed_set
 
-        # --- Generate Product Dialog Items (No changes here) ---
         notes = []
         all_possible_products = getattr(client_utils, "google_cloud_products", [])
-        # ... (logic for notes remains the same)
         if all_products_override:
             for product in all_possible_products:
                 is_selected = product == "All Products"
@@ -219,10 +208,8 @@ def openInitialDialog(request_json):
                 notes.append({"text": product, "value": product, "selected": False})
 
 
-        # --- Generate Blog Dialog Items (No changes here) ---
         blogs = []
         all_possible_categories = getattr(client_utils, "categories", [])
-        # ... (logic for blogs remains the same)
         if all_blogs_override:
             for category in all_possible_categories:
                 is_selected = category == "All Blogs"
@@ -237,8 +224,6 @@ def openInitialDialog(request_json):
             for category in all_possible_categories:
                 blogs.append({"text": category, "value": category, "selected": False})
 
-
-        # YOUTUBE-UPDATE: --- Generate YouTube Channel Dialog Items ---
         youtube_channels = []
         all_possible_youtube_channels = getattr(client_utils, "channels", [])
 
@@ -265,7 +250,6 @@ def openInitialDialog(request_json):
                     {"text": channel, "value": channel, "selected": False}
                 )
 
-        # YOUTUBE-UPDATE: Pass the new youtube_channels list to the dialog response
         return client_utils.retrieve_dialog_response(notes, blogs, youtube_channels)
 
     except Exception as e:
@@ -289,15 +273,12 @@ def returnSubscriptions(request_json):
         doc_dict = products_doc.to_dict()
         products = doc_dict.get("products_subscribed", [])
         categories = doc_dict.get("categories_subscribed", [])
-        # YOUTUBE-UPDATE: Get youtube subscriptions
         youtube_channels = doc_dict.get("youtube_channels_subscribed", [])
 
         product_list = "\n".join(f"- {p}" for p in products) if products else "None"
         category_list = "\n".join(f"- {c}" for c in categories) if categories else "None"
-        # YOUTUBE-UPDATE: Create list of youtube subscriptions
         youtube_list = "\n".join(f"- {y}" for y in youtube_channels) if youtube_channels else "None"
 
-        # YOUTUBE-UPDATE: Add YouTube channels to the message
         message_text = (f"Current Subscriptions for this Space:\n\n"
                         f"*Products:*\n{product_list}\n\n"
                         f"*Blog categories:*\n{category_list}\n\n"
@@ -329,13 +310,10 @@ def handle_templatized_blogs_inputs(categories):
             final_categories_set.update(category_list)
     return sorted(list(final_categories_set)), False
 
-# YOUTUBE-UPDATE: Add a handler for YouTube channel inputs
 def handle_templatized_youtube_inputs(channels):
     initial_channels_set = set(channels)
     if "All YouTube Channels" in initial_channels_set:
-        # Assumes client_utils.youtube_channels contains all channel names including the "All" tag
         return sorted(list(set(client_utils.channels))), True
-    # No other templating for youtube channels, just return the list
     return sorted(list(initial_channels_set)), False
 
 
@@ -343,10 +321,10 @@ def submitDialog(event):
     chatUser = event["chat"]["user"]
     products = []
     categories = []
-    youtube_channels = [] # YOUTUBE-UPDATE
+    youtube_channels = []
     all_products = False
     all_blogs = False
-    all_youtube = False # YOUTUBE-UPDATE
+    all_youtube = False
     space_id = event["chat"]["buttonClickedPayload"]["space"]["name"]
 
     if "formInputs" in event["commonEventObject"]:
@@ -357,7 +335,6 @@ def submitDialog(event):
         if "blogType" in form_inputs:
             categories = form_inputs["blogType"]["stringInputs"]["value"]
             categories, all_blogs = handle_templatized_blogs_inputs(categories)
-        # YOUTUBE-UPDATE: Process youtube channel form inputs
         if "youtubeChannelType" in form_inputs:
             youtube_channels = form_inputs["youtubeChannelType"]["stringInputs"]["value"]
             youtube_channels, all_youtube = handle_templatized_youtube_inputs(youtube_channels)
@@ -371,7 +348,6 @@ def submitDialog(event):
             executor.submit(record_space_blogs, space_id, category)
             for category in categories
         ]
-        # YOUTUBE-UPDATE: Record youtube channel subscriptions
         record_space_youtube_futures = [
             executor.submit(record_space_youtube_subscription, space_id, channel)
             for channel in youtube_channels
@@ -379,12 +355,10 @@ def submitDialog(event):
     futures.wait(
         record_space_subscription_futures
         + record_space_blogs_futures
-        + record_space_youtube_futures # YOUTUBE-UPDATE
+        + record_space_youtube_futures 
     )
-    # YOUTUBE-UPDATE: Pass youtube_channels to the recording function
     record_product_subscription(space_id, products, categories, youtube_channels)
 
-    # YOUTUBE-UPDATE: Update response message logic
     product_message = "All Products" if all_products else (f"products: {', '.join(products)}" if products else "no products")
     category_message = "All Blog Categories" if all_blogs else (f"blog categories: {', '.join(categories)}" if categories else "no blog categories")
     youtube_message = "All YouTube Channels" if all_youtube else (f"YouTube channels: {', '.join(youtube_channels)}" if youtube_channels else "no YouTube channels")
@@ -396,8 +370,6 @@ def submitDialog(event):
 
     return {"hostAppDataAction": {"chatDataAction": {"createMessageAction": {"message": {"privateMessageViewer": chatUser, "text": response}}}}}
 
-
-# YOUTUBE-UPDATE: New function to record subscriptions to the youtube inverted index
 def record_space_youtube_subscription(space_id, channel_name):
     try:
         subscriptions_ref = DB.collection("youtube_channel_subscriptions")
@@ -446,8 +418,6 @@ def record_space_subscription(space_id, product):
     except Exception as e:
         print(f"Error recording subscription: {e}", exc_info=True)
 
-
-# YOUTUBE-UPDATE: New function to unsubscribe a space from a youtube channel
 def unsubscribe_space_youtube(space_id, space_youtube_subscriptions_ref, channel_name):
     print(f"Unsubscribing space {space_id} from YouTube Channel {channel_name}")
     channel_id = client_utils.youtube_channel_details.get(channel_name, {}).get("id")
@@ -469,8 +439,6 @@ def unsubscribe_space_product(space_id, space_product_subscriptions_ref, product
     product_doc_ref = space_product_subscriptions_ref.document(product.replace("/", ""))
     product_doc_ref.update({"spaces_subscribed": firestore.ArrayRemove([space_id])})
 
-
-# YOUTUBE-UPDATE: Function updated to accept and process youtube_channels
 def record_product_subscription(space_id, products, categories, youtube_channels):
     try:
         subscriptions_ref = DB.collection("product_space_subscriptions")
@@ -490,11 +458,10 @@ def record_product_subscription(space_id, products, categories, youtube_channels
                 unsub_prod_futures = [executor.submit(unsubscribe_space_product, space_id, DB.collection("space_product_subscriptions"), p) for p in unsubscribed_products]
                 # Unsubscribe blogs
                 unsub_blog_futures = [executor.submit(unsubscribe_space_blogs, space_id, DB.collection("space_blog_subscriptions"), c) for c in unsubscribed_categories]
-                # YOUTUBE-UPDATE: Unsubscribe youtube channels
+                # Unsubscribe youtube channels
                 unsub_youtube_futures = [executor.submit(unsubscribe_space_youtube, space_id, DB.collection("youtube_channel_subscriptions"), y) for y in unsubscribed_youtube]
             futures.wait(unsub_prod_futures + unsub_blog_futures + unsub_youtube_futures)
 
-        # YOUTUBE-UPDATE: Set the new list of youtube subscriptions in the document
         space_doc_ref.set({
             "products_subscribed": products,
             "categories_subscribed": categories,
@@ -533,12 +500,10 @@ def create_message(pubsub_message):
         subtitle = blog.get("date")
         message = f"*{blog.get('title')}*\n\n{blog.get('summary')}"
         link = blog.get("link")
-    # YOUTUBE-UPDATE: Handle the new video message type
     elif "video" in pubsub_message:
         video = pubsub_message.get("video")
         title = f"New Video from {video.get('channel_name')}"
         subtitle = video.get("date")
-        # Video messages don't have a summary, so we just use the title.
         message = f"*{video.get('title')}*\n\n{video.get('summary')}\n\n{video.get('link')}"
         link = video.get("link")
     else:

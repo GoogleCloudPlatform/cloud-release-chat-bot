@@ -225,7 +225,6 @@ def send_new_video_notifications():
 
     for video_id, video in new_videos_map.items():
         print(f"New video found: {video['title']} from {video['channel_name']}")
-        # Use channel_id for more reliable document matching
         channel_doc = subscriptions_ref.document(video["channel_name"]).get()
         if channel_doc.exists:
             spaces_subscribed = channel_doc.to_dict().get("spaces_subscribed", [])
