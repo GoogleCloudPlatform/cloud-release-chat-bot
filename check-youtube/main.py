@@ -20,12 +20,11 @@ from datetime import datetime
 import functions_framework
 import requests
 from bs4 import BeautifulSoup
-from google.cloud import firestore, pubsub_v1
-from pytz import timezone
 from channel_rss_urls import rss_urls
 from google import genai
+from google.cloud import firestore, pubsub_v1
 from google.genai import types
-
+from pytz import timezone
 
 client = genai.Client(
     vertexai=True,
@@ -49,6 +48,7 @@ publish_futures = []
 def callback(future: pubsub_v1.publisher.futures.Future) -> None:
     message_id = future.result()
     print(message_id)
+
 
 def summarize_video(video):
     try:
@@ -117,10 +117,7 @@ def summarize_video(video):
         )
 
         # Prepare content to send to the model
-        contents = [
-            types.Part.from_text(text=additional_prompt),
-            youtube_video
-        ]
+        contents = [types.Part.from_text(text=additional_prompt), youtube_video]
 
         response = client.models.generate_content(
             # [https://ai.google.dev/gemini-api/docs/models](https://ai.google.dev/gemini-api/docs/models)
@@ -240,9 +237,7 @@ def send_new_video_notifications():
     # found today. This overwrites the previous day's data, preventing the
     # document from growing indefinitely.
     if new_videos_map:
-        doc_ref = firestore_client.collection("cloud_release_videos").document(
-            "videos"
-        )
+        doc_ref = firestore_client.collection("cloud_release_videos").document("videos")
         doc_ref.set(all_videos_map)
         print("Firestore updated with today's videos.")
 

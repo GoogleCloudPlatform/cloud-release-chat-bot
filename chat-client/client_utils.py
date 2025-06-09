@@ -182,7 +182,7 @@ channels = [
     "All YouTube Channels",
     "Google Cloud",
     "Google Cloud Tech",
-    "Google Cloud Events"
+    "Google Cloud Events",
 ]
 
 data_categories = [

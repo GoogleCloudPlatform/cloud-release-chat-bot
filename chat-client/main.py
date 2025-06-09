@@ -174,7 +174,9 @@ def openInitialDialog(request_json):
         youtube_channels_subscribed_set = set()
         doc_exists = False
 
-        space_name = request_json["chat"]["appCommandPayload"]["space"]["name"].replace("/", "_")
+        space_name = request_json["chat"]["appCommandPayload"]["space"]["name"].replace(
+            "/", "_"
+        )
         subscriptions_ref = DB.collection("product_space_subscriptions")
         product_doc_ref = subscriptions_ref.document(space_name)
         products_doc = product_doc_ref.get()
@@ -184,8 +186,9 @@ def openInitialDialog(request_json):
             doc_data = products_doc.to_dict()
             products_subscribed_set = set(doc_data.get("products_subscribed", []))
             categories_subscribed_set = set(doc_data.get("categories_subscribed", []))
-            youtube_channels_subscribed_set = set(doc_data.get("youtube_channels_subscribed", []))
-
+            youtube_channels_subscribed_set = set(
+                doc_data.get("youtube_channels_subscribed", [])
+            )
 
         all_products_override = "All Products" in products_subscribed_set
         all_blogs_override = "All Blogs" in categories_subscribed_set
@@ -196,30 +199,51 @@ def openInitialDialog(request_json):
         if all_products_override:
             for product in all_possible_products:
                 is_selected = product == "All Products"
-                notes.append({"text": product, "value": product, "selected": is_selected})
+                notes.append(
+                    {"text": product, "value": product, "selected": is_selected}
+                )
         elif doc_exists:
-            active_product_tags = {tag for tag in CATEGORY_MAP if tag in products_subscribed_set}
-            products_covered_by_active_tags = set().union(*(get_members_only(tag, CATEGORY_MAP) for tag in active_product_tags))
+            active_product_tags = {
+                tag for tag in CATEGORY_MAP if tag in products_subscribed_set
+            }
+            products_covered_by_active_tags = set().union(
+                *(get_members_only(tag, CATEGORY_MAP) for tag in active_product_tags)
+            )
             for product in all_possible_products:
-                is_selected = product in active_product_tags or (product in products_subscribed_set and product not in products_covered_by_active_tags)
-                notes.append({"text": product, "value": product, "selected": is_selected})
+                is_selected = product in active_product_tags or (
+                    product in products_subscribed_set
+                    and product not in products_covered_by_active_tags
+                )
+                notes.append(
+                    {"text": product, "value": product, "selected": is_selected}
+                )
         else:
             for product in all_possible_products:
                 notes.append({"text": product, "value": product, "selected": False})
-
 
         blogs = []
         all_possible_categories = getattr(client_utils, "categories", [])
         if all_blogs_override:
             for category in all_possible_categories:
                 is_selected = category == "All Blogs"
-                blogs.append({"text": category, "value": category, "selected": is_selected})
+                blogs.append(
+                    {"text": category, "value": category, "selected": is_selected}
+                )
         elif doc_exists:
-            active_blog_tags = {tag for tag in BLOG_CATEGORY_MAP if tag in categories_subscribed_set}
-            blogs_covered_by_active_tags = set().union(*(get_members_only(tag, BLOG_CATEGORY_MAP) for tag in active_blog_tags))
+            active_blog_tags = {
+                tag for tag in BLOG_CATEGORY_MAP if tag in categories_subscribed_set
+            }
+            blogs_covered_by_active_tags = set().union(
+                *(get_members_only(tag, BLOG_CATEGORY_MAP) for tag in active_blog_tags)
+            )
             for category in all_possible_categories:
-                is_selected = category in active_blog_tags or (category in categories_subscribed_set and category not in blogs_covered_by_active_tags)
-                blogs.append({"text": category, "value": category, "selected": is_selected})
+                is_selected = category in active_blog_tags or (
+                    category in categories_subscribed_set
+                    and category not in blogs_covered_by_active_tags
+                )
+                blogs.append(
+                    {"text": category, "value": category, "selected": is_selected}
+                )
         else:
             for category in all_possible_categories:
                 blogs.append({"text": category, "value": category, "selected": False})
@@ -235,11 +259,21 @@ def openInitialDialog(request_json):
                 )
         elif doc_exists:
             active_youtube_tags = {
-                tag for tag in YOUTUBE_CHANNEL_MAP if tag in youtube_channels_subscribed_set
+                tag
+                for tag in YOUTUBE_CHANNEL_MAP
+                if tag in youtube_channels_subscribed_set
             }
-            channels_covered_by_tags = set().union(*(get_members_only(tag, YOUTUBE_CHANNEL_MAP) for tag in active_youtube_tags))
+            channels_covered_by_tags = set().union(
+                *(
+                    get_members_only(tag, YOUTUBE_CHANNEL_MAP)
+                    for tag in active_youtube_tags
+                )
+            )
             for channel in all_possible_youtube_channels:
-                is_selected = channel in active_youtube_tags or (channel in youtube_channels_subscribed_set and channel not in channels_covered_by_tags)
+                is_selected = channel in active_youtube_tags or (
+                    channel in youtube_channels_subscribed_set
+                    and channel not in channels_covered_by_tags
+                )
                 youtube_channels.append(
                     {"text": channel, "value": channel, "selected": is_selected}
                 )
@@ -255,9 +289,18 @@ def openInitialDialog(request_json):
     except Exception as e:
         print(f"Error opening initial dialog: {e}")
         # Fallback with empty lists
-        notes = [{"text": p, "value": p, "selected": False} for p in getattr(client_utils, "google_cloud_products", [])]
-        blogs = [{"text": c, "value": c, "selected": False} for c in getattr(client_utils, "categories", [])]
-        youtube_channels = [{"text": y, "value": y, "selected": False} for y in getattr(client_utils, "channels", [])]
+        notes = [
+            {"text": p, "value": p, "selected": False}
+            for p in getattr(client_utils, "google_cloud_products", [])
+        ]
+        blogs = [
+            {"text": c, "value": c, "selected": False}
+            for c in getattr(client_utils, "categories", [])
+        ]
+        youtube_channels = [
+            {"text": y, "value": y, "selected": False}
+            for y in getattr(client_utils, "channels", [])
+        ]
         return client_utils.retrieve_dialog_response(
             notes, blogs, youtube_channels, error="Failed to load subscriptions."
         )
@@ -276,17 +319,41 @@ def returnSubscriptions(request_json):
         youtube_channels = doc_dict.get("youtube_channels_subscribed", [])
 
         product_list = "\n".join(f"- {p}" for p in products) if products else "None"
-        category_list = "\n".join(f"- {c}" for c in categories) if categories else "None"
-        youtube_list = "\n".join(f"- {y}" for y in youtube_channels) if youtube_channels else "None"
+        category_list = (
+            "\n".join(f"- {c}" for c in categories) if categories else "None"
+        )
+        youtube_list = (
+            "\n".join(f"- {y}" for y in youtube_channels)
+            if youtube_channels
+            else "None"
+        )
 
-        message_text = (f"Current Subscriptions for this Space:\n\n"
-                        f"*Products:*\n{product_list}\n\n"
-                        f"*Blog categories:*\n{category_list}\n\n"
-                        f"*YouTube Channels:*\n{youtube_list}")
+        message_text = (
+            f"Current Subscriptions for this Space:\n\n"
+            f"*Products:*\n{product_list}\n\n"
+            f"*Blog categories:*\n{category_list}\n\n"
+            f"*YouTube Channels:*\n{youtube_list}"
+        )
 
-        return {"hostAppDataAction": {"chatDataAction": {"createMessageAction": {"message": {"text": message_text}}}}}
+        return {
+            "hostAppDataAction": {
+                "chatDataAction": {
+                    "createMessageAction": {"message": {"text": message_text}}
+                }
+            }
+        }
     else:
-        return {"hostAppDataAction": {"chatDataAction": {"createMessageAction": {"message": {"text": "There are no subscriptions for this space yet. Use `/subscribe` to add some!"}}}}}
+        return {
+            "hostAppDataAction": {
+                "chatDataAction": {
+                    "createMessageAction": {
+                        "message": {
+                            "text": "There are no subscriptions for this space yet. Use `/subscribe` to add some!"
+                        }
+                    }
+                }
+            }
+        }
 
 
 def handle_templatized_notes_inputs(products):
@@ -309,6 +376,7 @@ def handle_templatized_blogs_inputs(categories):
         if category_tag in initial_categories_set:
             final_categories_set.update(category_list)
     return sorted(list(final_categories_set)), False
+
 
 def handle_templatized_youtube_inputs(channels):
     initial_channels_set = set(channels)
@@ -336,8 +404,12 @@ def submitDialog(event):
             categories = form_inputs["blogType"]["stringInputs"]["value"]
             categories, all_blogs = handle_templatized_blogs_inputs(categories)
         if "youtubeChannelType" in form_inputs:
-            youtube_channels = form_inputs["youtubeChannelType"]["stringInputs"]["value"]
-            youtube_channels, all_youtube = handle_templatized_youtube_inputs(youtube_channels)
+            youtube_channels = form_inputs["youtubeChannelType"]["stringInputs"][
+                "value"
+            ]
+            youtube_channels, all_youtube = handle_templatized_youtube_inputs(
+                youtube_channels
+            )
 
     with futures.ThreadPoolExecutor() as executor:
         record_space_subscription_futures = [
@@ -355,20 +427,49 @@ def submitDialog(event):
     futures.wait(
         record_space_subscription_futures
         + record_space_blogs_futures
-        + record_space_youtube_futures 
+        + record_space_youtube_futures
     )
     record_product_subscription(space_id, products, categories, youtube_channels)
 
-    product_message = "All Products" if all_products else (f"products: {', '.join(products)}" if products else "no products")
-    category_message = "All Blog Categories" if all_blogs else (f"blog categories: {', '.join(categories)}" if categories else "no blog categories")
-    youtube_message = "All YouTube Channels" if all_youtube else (f"YouTube channels: {', '.join(youtube_channels)}" if youtube_channels else "no YouTube channels")
+    product_message = (
+        "All Products"
+        if all_products
+        else (f"products: {', '.join(products)}" if products else "no products")
+    )
+    category_message = (
+        "All Blog Categories"
+        if all_blogs
+        else (
+            f"blog categories: {', '.join(categories)}"
+            if categories
+            else "no blog categories"
+        )
+    )
+    youtube_message = (
+        "All YouTube Channels"
+        if all_youtube
+        else (
+            f"YouTube channels: {', '.join(youtube_channels)}"
+            if youtube_channels
+            else "no YouTube channels"
+        )
+    )
 
     if products or categories or youtube_channels:
         response = f"😄🎉 Your request has been successfully submitted!\n\nThis space is now subscribed to:\n- {product_message}\n- {category_message}\n- {youtube_message}"
     else:
         response = "😄🎉 Your request has been successfully submitted!\n\nThis space is now unsubscribed from all products, blogs, and channels."
 
-    return {"hostAppDataAction": {"chatDataAction": {"createMessageAction": {"message": {"privateMessageViewer": chatUser, "text": response}}}}}
+    return {
+        "hostAppDataAction": {
+            "chatDataAction": {
+                "createMessageAction": {
+                    "message": {"privateMessageViewer": chatUser, "text": response}
+                }
+            }
+        }
+    }
+
 
 def record_space_youtube_subscription(space_id, channel_name):
     try:
@@ -382,9 +483,14 @@ def record_space_youtube_subscription(space_id, channel_name):
                 spaces_subscribed.append(space_id)
                 channel_doc_ref.update({"spaces_subscribed": spaces_subscribed})
         else:
-            channel_doc_ref.set({"channel_name": channel_name, "spaces_subscribed": [space_id]})
+            channel_doc_ref.set(
+                {"channel_name": channel_name, "spaces_subscribed": [space_id]}
+            )
     except Exception as e:
-        print(f"Error recording youtube subscription for '{channel_name}': {e}", exc_info=True)
+        print(
+            f"Error recording youtube subscription for '{channel_name}': {e}",
+            exc_info=True,
+        )
 
 
 def record_space_blogs(space_id, category):
@@ -398,7 +504,9 @@ def record_space_blogs(space_id, category):
                 spaces_subscribed.append(space_id)
                 category_doc_ref.update({"spaces_subscribed": spaces_subscribed})
         else:
-            category_doc_ref.set({"category": category, "spaces_subscribed": [space_id]})
+            category_doc_ref.set(
+                {"category": category, "spaces_subscribed": [space_id]}
+            )
     except Exception as e:
         print(f"Error recording subscription: {e}", exc_info=True)
 
@@ -417,6 +525,7 @@ def record_space_subscription(space_id, product):
             product_doc_ref.set({"product": product, "spaces_subscribed": [space_id]})
     except Exception as e:
         print(f"Error recording subscription: {e}", exc_info=True)
+
 
 def unsubscribe_space_youtube(space_id, space_youtube_subscriptions_ref, channel_name):
     print(f"Unsubscribing space {space_id} from YouTube Channel {channel_name}")
@@ -439,6 +548,7 @@ def unsubscribe_space_product(space_id, space_product_subscriptions_ref, product
     product_doc_ref = space_product_subscriptions_ref.document(product.replace("/", ""))
     product_doc_ref.update({"spaces_subscribed": firestore.ArrayRemove([space_id])})
 
+
 def record_product_subscription(space_id, products, categories, youtube_channels):
     try:
         subscriptions_ref = DB.collection("product_space_subscriptions")
@@ -455,36 +565,93 @@ def record_product_subscription(space_id, products, categories, youtube_channels
 
             with futures.ThreadPoolExecutor() as executor:
                 # Unsubscribe products
-                unsub_prod_futures = [executor.submit(unsubscribe_space_product, space_id, DB.collection("space_product_subscriptions"), p) for p in unsubscribed_products]
+                unsub_prod_futures = [
+                    executor.submit(
+                        unsubscribe_space_product,
+                        space_id,
+                        DB.collection("space_product_subscriptions"),
+                        p,
+                    )
+                    for p in unsubscribed_products
+                ]
                 # Unsubscribe blogs
-                unsub_blog_futures = [executor.submit(unsubscribe_space_blogs, space_id, DB.collection("space_blog_subscriptions"), c) for c in unsubscribed_categories]
+                unsub_blog_futures = [
+                    executor.submit(
+                        unsubscribe_space_blogs,
+                        space_id,
+                        DB.collection("space_blog_subscriptions"),
+                        c,
+                    )
+                    for c in unsubscribed_categories
+                ]
                 # Unsubscribe youtube channels
-                unsub_youtube_futures = [executor.submit(unsubscribe_space_youtube, space_id, DB.collection("youtube_channel_subscriptions"), y) for y in unsubscribed_youtube]
-            futures.wait(unsub_prod_futures + unsub_blog_futures + unsub_youtube_futures)
+                unsub_youtube_futures = [
+                    executor.submit(
+                        unsubscribe_space_youtube,
+                        space_id,
+                        DB.collection("youtube_channel_subscriptions"),
+                        y,
+                    )
+                    for y in unsubscribed_youtube
+                ]
+            futures.wait(
+                unsub_prod_futures + unsub_blog_futures + unsub_youtube_futures
+            )
 
-        space_doc_ref.set({
-            "products_subscribed": products,
-            "categories_subscribed": categories,
-            "youtube_channels_subscribed": youtube_channels
-        })
+        space_doc_ref.set(
+            {
+                "products_subscribed": products,
+                "categories_subscribed": categories,
+                "youtube_channels_subscribed": youtube_channels,
+            }
+        )
     except Exception as e:
         print(f"Error recording subscription: {e}", exc_info=True)
 
 
 class GoogleChatMessageConverter(MarkdownConverter):
-    def convert_img(self, el, text, parent_tags): return f"<{el.attrs.get('src', '')}|{el.attrs.get('alt', '')}>"
-    def convert_a(self, el, text, parent_tags): return f"<{el.get('href', '')}|{text}>"
-    def convert_strong(self, el, text, parent_tags): return f"*{text}*"
+    def convert_img(self, el, text, parent_tags):
+        return f"<{el.attrs.get('src', '')}|{el.attrs.get('alt', '')}>"
+
+    def convert_a(self, el, text, parent_tags):
+        return f"<{el.get('href', '')}|{text}>"
+
+    def convert_strong(self, el, text, parent_tags):
+        return f"*{text}*"
+
+    def convert_s(self, el, text, parent_tags):
+        return f"~{text}~"
+
+    def convert_del(self, el, text, parent_tags):
+        return f"~{text}~"
+
     def convert_li(self, el, text, parent_tags):
         extra_padding = " " * 8
         md_list = super().convert_li(el, text, parent_tags)
-        indented_bullets = [re.sub(r"^(?P<indent>\s+?)-(?P<bullet>.*?)", rf"{extra_padding}\g<indent>-\g<bullet>", line) for line in md_list.split("\n")]
+        indented_bullets = [
+            re.sub(
+                r"^(?P<indent>\s+?)-(?P<bullet>.*?)",
+                rf"{extra_padding}\g<indent>-\g<bullet>",
+                line,
+            )
+            for line in md_list.split("\n")
+        ]
         return "\n".join(indented_bullets)
 
 
 def convert_html_to_chat_api_format(html):
-    message = re.sub(r"^#+ (?P<header>.*?)$", r"*\g<header>*", GoogleChatMessageConverter(strong_em_symbol="_", bullets="-").convert(html), flags=re.MULTILINE)
-    return re.sub(r"<(?P<link>.*?)\|`(?P<text>.*?)`>", r"<\g<link>|\g<text>>", message, flags=re.MULTILINE)
+    message = re.sub(
+        r"^#+ (?P<header>.*?)$",
+        r"*\g<header>*",
+        GoogleChatMessageConverter(strong_em_symbol="_", bullets="-").convert(html),
+        flags=re.MULTILINE,
+    )
+    return re.sub(
+        r"<(?P<link>.*?)\|`(?P<text>.*?)`>",
+        r"<\g<link>|\g<text>>",
+        message,
+        flags=re.MULTILINE,
+    )
 
 
 def create_message(pubsub_message):
@@ -504,7 +671,9 @@ def create_message(pubsub_message):
         video = pubsub_message.get("video")
         title = f"New Video from {video.get('channel_name')}"
         subtitle = video.get("date")
-        message = f"*{video.get('title')}*\n\n{video.get('summary')}\n\n{video.get('link')}"
+        message = (
+            f"*{video.get('title')}*\n\n{video.get('summary')}\n\n{video.get('link')}"
+        )
         link = video.get("link")
     else:
         title = "An Error Occurred"
@@ -537,7 +706,9 @@ def handle_pubsub_message(req: flask.Request):
         if not envelope:
             raise Exception("No Pub/Sub message received")
 
-        pubsub_message = json.loads(base64.b64decode(envelope["message"]["data"]).decode("utf-8").strip())
+        pubsub_message = json.loads(
+            base64.b64decode(envelope["message"]["data"]).decode("utf-8").strip()
+        )
         print(f"Processing Pub/Sub message: {pubsub_message}")
         space_id = pubsub_message.get("space_id")
         message = create_message(pubsub_message)
