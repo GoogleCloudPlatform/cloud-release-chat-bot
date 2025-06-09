@@ -123,7 +123,7 @@ def summarize_video(video):
         ]
 
         response = client.models.generate_content(
-            # https://ai.google.dev/gemini-api/docs/models
+            # [https://ai.google.dev/gemini-api/docs/models](https://ai.google.dev/gemini-api/docs/models)
             model="gemini-2.5-pro-preview-05-06",
             contents=contents,
         )
@@ -237,16 +237,14 @@ def send_new_video_notifications():
     futures.wait(publish_futures, return_when=futures.ALL_COMPLETED)
 
     # If there were new videos, update the Firestore document with all videos
-    # found today to prevent duplicate notifications.
+    # found today. This overwrites the previous day's data, preventing the
+    # document from growing indefinitely.
     if new_videos_map:
         doc_ref = firestore_client.collection("cloud_release_videos").document(
             "videos"
         )
-        # We merge with existing stored videos to keep a running list
-        stored_videos = get_stored_videos()
-        stored_videos.update(all_videos_map)
-        doc_ref.set(stored_videos)
-        print("Firestore updated with the latest videos.")
+        doc_ref.set(all_videos_map)
+        print("Firestore updated with today's videos.")
 
 
 @functions_framework.http
