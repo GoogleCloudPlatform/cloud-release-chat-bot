@@ -12,7 +12,7 @@ The bot operates using the following main components:
 
 2.  **Blogs Checker Function:** This function is scheduled to run every 30 minutes. It fetches the latest Google Cloud blogs, identifies any new blogs, and publishes them as messages to a Pub/Sub topic.
 
-3.  **Youtube Checker Function:** This function is scheduled to run every 30 minutes. It fetches the latest Google Cloud vidoes, identifies any new videos, and publishes them as messages to a Pub/Sub topic.
+3.  **Youtube Checker Function:** This function is scheduled to run every 30 minutes. It fetches the latest Google Cloud videos, identifies any new videos, and publishes them as messages to a Pub/Sub topic.
 
 4.  **Chat Client Function:** This function subscribes to the Pub/Sub topic.  When a new release note message arrives, it processes the message, retrieves relevant space subscriptions from Firestore, and sends the release note notification to the appropriate chat spaces.  Space subscriptions (i.e., which spaces want to receive notifications for which Google Cloud products/services) are stored in Firestore.
 
