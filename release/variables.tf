@@ -22,6 +22,12 @@ variable "blog_name" {
   default     = "check-blogs"
 }
 
+variable "youtube_name" {
+  description = "Name for source code"
+  type        = string
+  default     = "check-youtube"
+}
+
 variable "pub_sub_topic_name" {
   description = "Pub Sub Topic name"
   default     = "gcp-release-notes"

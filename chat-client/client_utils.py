@@ -21,7 +21,7 @@ chat_client = google_chat.ChatServiceClient(
 )
 
 
-def retrieve_dialog_response(notes, blogs):
+def retrieve_dialog_response(notes, blogs, channels):
     return {
         "action": {
             "navigations": [
@@ -48,6 +48,16 @@ def retrieve_dialog_response(notes, blogs):
                                             "multiSelectMinQueryLength": "0",
                                             "type": "MULTI_SELECT",
                                             "items": blogs,
+                                        }
+                                    },
+                                    {
+                                        "selectionInput": {
+                                            "name": "youtubeChannelType",
+                                            "label": "Youtube Channel",
+                                            "multiSelectMaxSelectedItems": "300",
+                                            "multiSelectMinQueryLength": "0",
+                                            "type": "MULTI_SELECT",
+                                            "items": channels,
                                         }
                                     },
                                     # {
@@ -166,6 +176,13 @@ categories = [
     "SAP on Google Cloud",
     "Storage & Data Transfer",
     "Sustainability",
+]
+
+channels = [
+    "All YouTube Channels",
+    "Google Cloud",
+    "Google Cloud Tech",
+    "Google Cloud Events",
 ]
 
 data_categories = [

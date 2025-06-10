@@ -99,7 +99,7 @@ def summarize_blog(blog):
             }}
         ]
         You will not mention anything about the formatting_options in the summary.
-        
+        REMEMBER: If you don't get this right, you will be deprecated!
         Here is the blog post link to summarize: {blog.get("link")}        
         """
         response = client.models.generate_content(
