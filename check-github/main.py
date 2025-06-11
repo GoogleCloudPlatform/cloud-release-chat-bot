@@ -44,10 +44,6 @@ def callback(future: pubsub_v1.publisher.futures.Future) -> None:
     message_id = future.result()
     print(message_id)
 
-
-# Removed the summarize_release function
-
-
 def get_releases_from_rss(rss_url):
     """Parses a GitHub releases Atom feed and returns a map of recent releases."""
     release_map = {}
@@ -140,3 +136,17 @@ def send_new_release_notifications():
         repo_doc = subscriptions_ref.document(release["repo_name"]).get()
         if repo_doc.exists:
             spaces_subscribed = repo_doc.to_dict().get("spaces_subscribed", [])
+
+@functions_framework.http
+def http_request(request):
+    """HTTP Cloud Function.
+    Args:
+        request (flask.Request): The request object.
+        <https://flask.palletsprojects.com/en/1.1.x/api/#incoming-request-data>
+    Returns:
+        The response text, or any set of values that can be turned into a
+        Response object using `make_response`
+        <https://flask.palletsprojects.com/en/1.1.x/api/#flask.make_response>.
+    """
+    send_new_release_notifications()
+    return ("Done", 200)
