@@ -814,7 +814,7 @@ def create_message(pubsub_message):
         release = pubsub_message.get("release")
         title = f"New GitHub Release from {release.get('repo_name')}"
         subtitle = release.get("date")
-        message = f"*{release.get('title')}*\n\n{release.get('summary')}"
+        message = f"*{release.get('title')}*"
         link = release.get("link")
     else:
         title = "An Error Occurred"
