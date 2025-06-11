@@ -1,0 +1,7 @@
+functions-framework==3.*
+google-cloud-firestore
+google-cloud-pubsub
+beautifulsoup4
+google-genai
+lxml # required for beautifulsoup4
+pytz
