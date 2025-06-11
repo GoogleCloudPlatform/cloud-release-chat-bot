@@ -22,7 +22,7 @@ import requests
 from bs4 import BeautifulSoup
 from google.cloud import firestore, pubsub_v1
 from pytz import timezone
-from repo_rss_urls import rss_urls
+from github_rss_urls import rss_urls
 
 # Removed genai client initialization
 

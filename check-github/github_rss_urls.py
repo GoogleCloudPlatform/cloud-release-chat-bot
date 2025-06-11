@@ -25,7 +25,7 @@ github_owner_map = [
     {"owner": "apache", "repos": ["airflow", "beam", "iceberg", "spark"]},
 ]
 
-github_rss_urls = []
+rss_urls = []
 
 for owner_map in github_owner_map:
     for repo in owner_map.get("repos"):
