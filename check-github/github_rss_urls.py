@@ -22,7 +22,7 @@ github_owner_map = [
         ],
     },
     {"owner": "google", "repos": ["adk-python"]},
-    {"owner": "apache", "repos": ["airflow", "beam", "iceberg", "spark"]},
+    {"owner": "googleapis", "repos": ["python-bigquery"]},
 ]
 
 rss_urls = []

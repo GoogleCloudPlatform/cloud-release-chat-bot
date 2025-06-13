@@ -199,11 +199,7 @@ repos = [
     "All Repos",
     "professional-services-data-validator",
     "spanner-migration-tool",
-    "adk-python",
-    "airflow",
-    "spark",
-    "iceberg",
-    "beam",
+    "python-bigquery",
 ]
 
 data_categories = [
