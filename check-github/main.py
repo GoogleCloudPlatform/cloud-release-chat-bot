@@ -27,32 +27,22 @@ from google import genai
 
 from github_rss_urls import rss_urls
 
-# Environment variables
-GCP_PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
-PUB_SUB_TOPIC_NAME = os.environ.get("PUB_SUB_TOPIC_NAME")
-GCP_LOCATION = os.environ.get("GCP_LOCATION", "us-central1")  # Default location
-
-if not GCP_PROJECT_ID or not PUB_SUB_TOPIC_NAME:
-    raise ValueError(
-        "GCP_PROJECT_ID and PUB_SUB_TOPIC_NAME environment variables must be set."
-    )
-
 client = genai.Client(
     vertexai=True,
     location="us-central1",
 )
 
-# Initialize Firestore Client
-firestore_client = firestore.Client()
-
-# Initialize Pub/Sub Publisher Client
+firestore_client = firestore.Client(project=os.environ.get("GCP_PROJECT_ID"))
 batch_settings = pubsub_v1.types.BatchSettings(
-    max_messages=100, max_bytes=1024 * 10, max_latency=1
+    max_messages=100,  # default 100 m
+    max_bytes=1024,  # default 1 MB
+    max_latency=1,  # default 10 ms
 )
 publisher = pubsub_v1.PublisherClient(batch_settings)
-topic_path = publisher.topic_path(GCP_PROJECT_ID, PUB_SUB_TOPIC_NAME)
+topic_path = publisher.topic_path(
+    os.environ.get("GCP_PROJECT_ID"), os.environ.get("PUB_SUB_TOPIC_NAME")
+)
 publish_futures = []
-
 
 # --- Pub/Sub Callback ---
 def callback(future: pubsub_v1.publisher.futures.Future) -> None:
