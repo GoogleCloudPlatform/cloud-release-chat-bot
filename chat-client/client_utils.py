@@ -197,9 +197,12 @@ channels = [
 
 repos = [
     "All Repos",
+    "adk-python",
+    "adk-java",
     "professional-services-data-validator",
+    "python-bigquery"
+    "java-bigquery",
     "spanner-migration-tool",
-    "python-bigquery",
 ]
 
 data_categories = [

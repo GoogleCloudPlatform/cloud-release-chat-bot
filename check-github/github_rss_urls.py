@@ -21,8 +21,8 @@ github_owner_map = [
             "spanner-migration-tool",
         ],
     },
-    {"owner": "google", "repos": ["adk-python"]},
-    {"owner": "googleapis", "repos": ["python-bigquery"]},
+    {"owner": "google", "repos": ["adk-python", "adk-java"]},
+    {"owner": "googleapis", "repos": ["python-bigquery", "java-bigquery"]},
 ]
 
 rss_urls = []
