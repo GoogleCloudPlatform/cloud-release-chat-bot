@@ -809,12 +809,11 @@ def create_message(pubsub_message):
         subtitle = video.get("date")
         message = f"*{video.get('title')}*\n\n{video.get('summary')}"
         link = video.get("link")
-
     elif "release" in pubsub_message:
         release = pubsub_message.get("release")
         title = f"New GitHub Release from {release.get('repo_name')}"
         subtitle = release.get("date")
-        message = f"*{release.get('title')}*"
+        message = f"*{release.get('title')}*\n\n{release.get('summary')}*"
         link = release.get("link")
     else:
         title = "An Error Occurred"

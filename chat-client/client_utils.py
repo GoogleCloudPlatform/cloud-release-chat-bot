@@ -200,7 +200,7 @@ repos = [
     "adk-python",
     "adk-java",
     "professional-services-data-validator",
-    "python-bigquery"
+    "python-bigquery",
     "java-bigquery",
     "spanner-migration-tool",
 ]
