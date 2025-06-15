@@ -36,7 +36,7 @@ DB = firestore.Client(os.environ.get("GCP_PROJECT_ID"))
 def chat_app(req: flask.Request) -> Mapping[str, Any]:
     req_json = req.get_json()
     print(f"Received request: {req_json}")
-    # Handle chat UI 
+    # Handle chat UI
     if req.method == "POST" and req.path == "/":
         chatEvent = req_json["chat"]
         if "messagePayload" in chatEvent:
