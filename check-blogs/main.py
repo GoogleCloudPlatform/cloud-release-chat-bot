@@ -53,7 +53,7 @@ def summarize_blog(blog):
     try:
         prompt = f"""
         You are a helpful assistant that concisely summarizes Google Cloud blog posts.
-        You will be provided with a blog post link.
+        You will be provided with blog post content.
         If you use bulleted lists in the summary, they MUST be one-level bulleted lists.
         No nested lists are allowed!
         Every list item in a bulleted list must start with an asterisk followed by ONLY ONE SPACE and then text.
@@ -100,7 +100,7 @@ def summarize_blog(blog):
         ]
         You will not mention anything about the formatting_options in the summary.
         REMEMBER: If you don't get this right, you will be deprecated!
-        Here is the blog post link to summarize: {blog.get("link")}        
+        Here is the blog content to summarize: {blog.get("description")}        
         """
         response = client.models.generate_content(
             # https://ai.google.dev/gemini-api/docs/models
