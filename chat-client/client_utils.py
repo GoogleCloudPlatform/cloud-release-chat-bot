@@ -21,7 +21,7 @@ chat_client = google_chat.ChatServiceClient(
 )
 
 
-def retrieve_dialog_response(notes, blogs, channels):
+def retrieve_dialog_response(notes, blogs, channels, repos):
     return {
         "action": {
             "navigations": [
@@ -58,6 +58,16 @@ def retrieve_dialog_response(notes, blogs, channels):
                                             "multiSelectMinQueryLength": "0",
                                             "type": "MULTI_SELECT",
                                             "items": channels,
+                                        }
+                                    },
+                                    {
+                                        "selectionInput": {
+                                            "name": "repoType",
+                                            "label": "Github Repo",
+                                            "multiSelectMaxSelectedItems": "300",
+                                            "multiSelectMinQueryLength": "0",
+                                            "type": "MULTI_SELECT",
+                                            "items": repos,
                                         }
                                     },
                                     # {
@@ -183,6 +193,16 @@ channels = [
     "Google Cloud",
     "Google Cloud Tech",
     "Google Cloud Events",
+]
+
+repos = [
+    "All Repos",
+    "adk-python",
+    "adk-java",
+    "professional-services-data-validator",
+    "python-bigquery",
+    "java-bigquery",
+    "spanner-migration-tool",
 ]
 
 data_categories = [
