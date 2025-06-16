@@ -21,11 +21,10 @@ from datetime import datetime
 import functions_framework
 import requests
 from bs4 import BeautifulSoup
+from github_rss_urls import rss_urls
+from google import genai
 from google.cloud import firestore, pubsub_v1
 from pytz import timezone
-from google import genai
-
-from github_rss_urls import rss_urls
 
 client = genai.Client(
     vertexai=True,
@@ -43,6 +42,7 @@ topic_path = publisher.topic_path(
     os.environ.get("GCP_PROJECT_ID"), os.environ.get("PUB_SUB_TOPIC_NAME")
 )
 publish_futures = []
+
 
 # --- Pub/Sub Callback ---
 def callback(future: pubsub_v1.publisher.futures.Future) -> None:
