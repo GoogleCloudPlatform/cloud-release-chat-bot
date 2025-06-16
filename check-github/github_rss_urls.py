@@ -29,5 +29,5 @@ rss_urls = []
 
 for owner_map in github_owner_map:
     for repo in owner_map.get("repos"):
-        url = f"https://www.github.com/{owner_map.get('owner')}/{repo}/releases.atom"
+        url = f"https://github.com/{owner_map.get('owner')}/{repo}/releases.atom"
         rss_urls.append(url)
