@@ -150,6 +150,7 @@ def get_blog_posts(rss_url):
                     "category_name": category,
                     "title": title,
                     "link": link,
+                    "description": description,
                     "date": pub_date.strftime("%B %d, %Y"),
                 }
         except AttributeError as e:
