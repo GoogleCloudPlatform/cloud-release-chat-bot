@@ -32,6 +32,27 @@ SUBSCRIPTIONS_COMMAND_ID = 2
 DB = firestore.Client(os.environ.get("GCP_PROJECT_ID"))
 
 
+CATEGORY_MAP = {
+    "All Data Products": client_utils.google_cloud_data_products,
+    "All AI Products": client_utils.google_cloud_ai_products,
+    "All App Mod Products": client_utils.google_cloud_app_mod_products,
+    "All Security Products": client_utils.google_cloud_security_products,
+}
+
+BLOG_CATEGORY_MAP = {
+    "All Data Blogs": getattr(client_utils, "data_categories", []),
+}
+
+YOUTUBE_CHANNEL_MAP = {
+    "All YouTube Channels": getattr(client_utils, "channels", []),
+}
+
+
+REPO_MAP = {
+    "All Repos": getattr(client_utils, "repos", []),
+}
+
+
 @functions_framework.http
 def chat_app(req: flask.Request) -> Mapping[str, Any]:
     req_json = req.get_json()
@@ -145,27 +166,6 @@ def handleMessage(event):
             }
         }
     }
-
-
-CATEGORY_MAP = {
-    "All Data Products": client_utils.google_cloud_data_products,
-    "All AI Products": client_utils.google_cloud_ai_products,
-    "All App Mod Products": client_utils.google_cloud_app_mod_products,
-    "All Security Products": client_utils.google_cloud_security_products,
-}
-
-BLOG_CATEGORY_MAP = {
-    "All Data Blogs": getattr(client_utils, "data_categories", []),
-}
-
-YOUTUBE_CHANNEL_MAP = {
-    "All YouTube Channels": getattr(client_utils, "channels", []),
-}
-
-
-REPO_MAP = {
-    "All Repos": getattr(client_utils, "repos", []),
-}
 
 
 def _get_expanded_subscription_set(subscribed_items, category_map):
