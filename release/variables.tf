@@ -28,6 +28,12 @@ variable "youtube_name" {
   default     = "check-youtube"
 }
 
+variable "github_name" {
+  description = "Name for source code"
+  type        = string
+  default     = "check-github"
+}
+
 variable "pub_sub_topic_name" {
   description = "Pub Sub Topic name"
   default     = "gcp-release-notes"
