@@ -52,55 +52,35 @@ def callback(future: pubsub_v1.publisher.futures.Future) -> None:
 def summarize_blog(blog):
     try:
         prompt = f"""
-        You are a helpful assistant that concisely summarizes Google Cloud blog posts.
-        You will be provided with blog post content.
-        If you use bulleted lists in the summary, they MUST be one-level bulleted lists.
-        No nested lists are allowed!
-        Every list item in a bulleted list must start with an asterisk followed by ONLY ONE SPACE and then text.
-        You will not include the blog title in the summary.
-        You will leave out introductory text like 'This blog contains...' or 'Here is the summary...'.
-        You will use the following Google Chat API text formatting options if necessary:
-        [
-            {{
-                "Format": "Bold",
-                "Symbol": "*",
-                "Example syntax": "*hello*",
-                "Text displayed in Google Chat": "hello"
-            }},
-            {{
-                "Format": "Italic",
-                "Symbol": "_ (underscore)",
-                "Example syntax": "_hello_",
-                "Text displayed in Google Chat": "hello"
-            }},
-            {{
-                "Format": "Strikethrough",
-                "Symbol": "~",
-                "Example syntax": "~hello~",
-                "Text displayed in Google Chat": "hello"
-            }},
-            {{
-                "Format": "Monospace",
-                "Symbol": "` (backquote)",
-                "Example syntax": "`hello`",
-                "Text displayed in Google Chat": "hello"
-            }},
-            {{
-                "Format": "Monospace block",
-                "Symbol": "``` (three backquotes)",
-                "Example syntax": "```\nHello\nWorld\n```",
-                "Text displayed in Google Chat": "Hello\nWorld"
-            }},
-            {{
-                "Format": "Bulleted list",
-                "Symbol": "* or - (hyphen) followed by only 1 space and then the text",
-                "Example syntax": "* This is the first item in the list\n* This is the second item in the list",
-                "Text displayed in Google Chat": "• This is the first item in the list\n• This is the second item in the list"
-            }}
-        ]
-        You will not mention anything about the formatting_options in the summary.
-        REMEMBER: If you don't get this right, you will be deprecated!
-        Here is the blog content to summarize: {blog.get("description")}        
+        You are an expert technical writer, skilled at creating concise and informative summaries of Google Cloud blog posts for a technical audience. Your summaries will be used in a Google Chat message, so you MUST strictly adhere to the specified formatting.
+
+        **Primary Goal:** Summarize the provided blog post content.
+
+        **Instructions:**
+
+        1.  **Conciseness:** The summary should be easy to read and digest quickly. Aim for a brief introductory paragraph followed by a bulleted list of key takeaways.
+        2.  **No Intros or Outros:** Do not include introductory phrases like "This blog post is about..." or concluding remarks like "In summary...".
+        3.  **Exclude Blog Title:** Do not repeat the blog title in the summary.
+        4.  **Focus on Key Information:** Prioritize summarizing the main announcements, new features, technical solutions presented, and the primary benefits for the reader.
+        5.  **Audience:** Assume the reader is a developer, architect, or IT professional with some familiarity with cloud computing concepts.
+
+        **Formatting Rules (Google Chat API):**
+
+        * **Bold:** Use asterisks (*) for emphasis on key terms, product names, or important concepts. For example: *Cloud Run*.
+        * **Italics:** Use underscores (_) for subtle emphasis or to introduce new terms. For example: _serverless_.
+        * **Monospace:** Use backticks (`) for code snippets, commands, file names, or technical parameters. For example: `gcloud deploy`.
+        * **Links:** If you need to include a URL, use the format `<url|text>`. For example: `<https://cloud.google.com/blog|Google Cloud Blog>`.
+        * **Bulleted Lists:**
+            * MUST be a single-level list.
+            * Each list item MUST start with an asterisk (*), followed by ONLY ONE space, and then the text.
+            * Do NOT use nested bullets.
+
+        **CRITICAL:** The accuracy and adherence to these formatting rules are essential. Do not add any comments or explanations about the formatting in your output.
+
+        **Blog Post Content to Summarize:**
+
+        ```text
+        {blog.get("description")}
         """
         response = client.models.generate_content(
             # https://ai.google.dev/gemini-api/docs/models
