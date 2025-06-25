@@ -100,7 +100,8 @@ def summarize_blog(blog):
         ]
         You will not mention anything about the formatting_options in the summary.
         REMEMBER: If you don't get this right, you will be deprecated!
-        Here is the blog post link to summarize: {blog.get("link")}        
+        Here is the blog post link to summarize: {blog.get("link")}
+        The author of this blog post is {blog.get("author")}. After the summary, add a new line and then include the author in the format 'By [Author Name(s)]'.
         """
         response = client.models.generate_content(
             # https://ai.google.dev/gemini-api/docs/models
@@ -108,6 +109,7 @@ def summarize_blog(blog):
             contents=prompt,
         )
         if response.text:  # Check if there's a valid response
+            # The prompt now asks the model to include the author, so no need to manually append it here.
             blog["summary"] = response.text
             return response.text
         else:
@@ -130,6 +132,8 @@ def get_blog_posts(rss_url):
             guid = blog.find("guid").contents[0]
             title = blog.find("title").contents[0]
             link = blog.find("link").contents[0]
+            author_tag = blog.find("dc:creator")
+            author = author_tag.contents[0] if author_tag and author_tag.contents else "Unknown Author"
             description = blog.find("description").contents[0]
             pub_date = blog.find("pubDate").contents[0]
             pub_date = (
@@ -150,9 +154,11 @@ def get_blog_posts(rss_url):
                     "category_name": category,
                     "title": title,
                     "link": link,
+                    "author": author,
                     "date": pub_date.strftime("%B %d, %Y"),
                 }
         except AttributeError as e:
+            print(f"Skipping blog post due to missing attribute: {e}")
             continue
     return blog_map
 
