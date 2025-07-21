@@ -839,7 +839,9 @@ def create_message(pubsub_message):
         )
 
     return Message(
-        thread={"thread_key": link or title},
+        # Uncomment below to send all notifications
+        # per subscription per day to its own thread
+        # thread={"thread_key": link or title},
         text=f"*{title}*\n{subtitle}\n\n{message}",
         accessory_widgets=card_widgets,
     )
