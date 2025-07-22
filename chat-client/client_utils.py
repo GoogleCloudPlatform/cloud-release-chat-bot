@@ -143,7 +143,7 @@ def send_chat_message(space_id, message):
                 parent=space_id,
                 message=message,
                 # Set the message reply option to fallback to a new thread
-                message_reply_option=google_chat.CreateMessageRequest.MessageReplyOption.REPLY_MESSAGE_FALLBACK_TO_NEW_THREAD,
+                # message_reply_option=google_chat.CreateMessageRequest.MessageReplyOption.REPLY_MESSAGE_FALLBACK_TO_NEW_THREAD,
             )
         )
         print(f"Response from sending chat message: {response}")
