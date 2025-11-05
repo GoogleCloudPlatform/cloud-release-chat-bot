@@ -776,6 +776,8 @@ class GoogleChatMessageConverter(MarkdownConverter):
 
 
 def convert_html_to_chat_api_format(html):
+    # Remove newlines
+    html = re.sub(r"\n", " ", html, flags=re.MULTILINE)
     message = re.sub(
         r"^#+ (?P<header>.*?)$",
         r"*\g<header>*",
