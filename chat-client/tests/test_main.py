@@ -86,3 +86,11 @@ class TestChatClientFunctions:
             "<p>This is <del>strikethrough</del> text.</p>"
         )
         assert html == "This is ~strikethrough~ text."
+
+    def test_convert_a_with_spaces(self):
+        html = '<h3>Feature</h3>\n<p>You can now use <a href="https://docs.cloud.google.com/bigquery/docs/migration-custom-org-policies">custom organization policies with the BigQuery migration\nservice</a> to allow or deny specific\noperations during a BigQuery migration to meet your organization\'s compliance\nand security requirements. This includes an option to disable AI suggestions\nduring a migration. This feature is in\n<a href="https://cloud.google.com/products/#product-launch-stages">Preview</a>.</p>\n\n    '
+        print(convert_html_to_chat_api_format(html))
+        assert (
+            convert_html_to_chat_api_format(html)
+            == "*Feature*\n\nYou can now use <https://docs.cloud.google.com/bigquery/docs/migration-custom-org-policies|custom organization policies with the BigQuery migration service> to allow or deny specific operations during a BigQuery migration to meet your organization's compliance and security requirements. This includes an option to disable AI suggestions during a migration. This feature is in <https://cloud.google.com/products/#product-launch-stages|Preview>."
+        )

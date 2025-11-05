@@ -133,7 +133,7 @@ def get_blog_posts(rss_url):
                     "description": description,
                     "date": pub_date.strftime("%B %d, %Y"),
                 }
-        except AttributeError as e:
+        except AttributeError:
             continue
     return blog_map
 
