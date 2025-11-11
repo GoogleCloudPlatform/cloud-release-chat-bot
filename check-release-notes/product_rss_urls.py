@@ -14,7 +14,7 @@
 
 # Description: This file contains the list of RSS URLs for each product.
 rss_urls = [
-    "https://cloud.google.com/feeds/" + product_feed
+    "https://docs.cloud.google.com/feeds/" + product_feed
     for product_feed in [
         "access-approval-release-notes.xml",
         "access-approval-v1-release-notes.xml",
