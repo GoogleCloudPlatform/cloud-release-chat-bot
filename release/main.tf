@@ -335,8 +335,8 @@ resource "google_cloud_scheduler_job" "job" {
   name             = "refresh-release-notes"
   project          = var.project_id
   region           = var.region
-  description      = "Refresh releases notes every 5 minutes"
-  schedule         = "*/5 * * * *"
+  description      = "Refresh releases notes every 2 hours"
+  schedule         = "0 */2 * * *"
   time_zone        = "America/New_York"
   attempt_deadline = "240s" # 4 minutes
 
