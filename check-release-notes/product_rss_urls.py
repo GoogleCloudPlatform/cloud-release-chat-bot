@@ -187,6 +187,7 @@ rss_urls = [
         "gemini-codeassist-release-notes.xml",
         "gemini-codeassist-version_unspecified-release-notes.xml",
         "gemini-release-notes.xml",
+        "gemini-enterprise-release-notes.xml",
         "gemini-version_unspecified-release-notes.xml",
         "gen-app-builder-release-notes.xml",
         "generative-ai-on-vertex-ai-release-notes.xml",
