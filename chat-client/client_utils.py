@@ -389,6 +389,7 @@ google_cloud_products = [
     "Gemini",
     "Gemini Code Assist",
     "Gemini Code Assist in Apigee",
+    "Gemini Enterprise",
     "Generative AI on Vertex AI",
     "GitLab on Google Cloud",
     "GKE - Security Bulletins",
@@ -526,6 +527,7 @@ google_cloud_ai_products = [
     "Gemini",
     "Gemini Code Assist",
     "Gemini Code Assist in Apigee",
+    "Gemini Enterprise",
     "Generative AI on Vertex AI",
     "Google Agentspace",
     "Google Cloud Contact Center as a Service",  # Often includes CCAI
