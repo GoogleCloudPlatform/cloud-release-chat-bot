@@ -340,6 +340,10 @@ resource "google_cloud_scheduler_job" "job" {
   time_zone        = "America/New_York"
   attempt_deadline = "240s" # 4 minutes
 
+  retry_config {
+    retry_count = 5
+  }
+
   http_target {
     http_method = "GET"
     uri         = google_cloudfunctions2_function.check_function.url
@@ -359,6 +363,10 @@ resource "google_cloud_scheduler_job" "blog_job" {
   schedule         = "*/30 * * * *"
   time_zone        = "America/New_York"
   attempt_deadline = "320s"
+
+  retry_config {
+    retry_count = 5
+  }
 
   http_target {
     http_method = "GET"
@@ -381,6 +389,10 @@ resource "google_cloud_scheduler_job" "youtube_video_job" {
   time_zone        = "America/New_York"
   attempt_deadline = "320s"
 
+  retry_config {
+    retry_count = 5
+  }
+
   http_target {
     http_method = "GET"
     uri         = google_cloudfunctions2_function.youtube_video_function.url
@@ -401,6 +413,10 @@ resource "google_cloud_scheduler_job" "github_release_job" {
   schedule         = "0 */2 * * *" # Runs at the top of every 2nd hour
   time_zone        = "America/New_York"
   attempt_deadline = "320s"
+  
+  retry_config {
+    retry_count = 5
+  }
 
   http_target {
     http_method = "GET"
