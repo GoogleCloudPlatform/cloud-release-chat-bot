@@ -133,18 +133,21 @@ def get_new_release_note_subsections(latest_release_note, stored_release_note):
     Returns:
         The new release note subsections
     """
+    if "<h3>" not in latest_release_note.get("html", "") or "<h3>" not in stored_release_note.get("html", ""):
+        return latest_release_note
+
     latest_release_note_subsections_html = re.split(
-        r"\<h3\>.*?\<\/h3\>", latest_release_note.get("html")
+        r"\<h[3-4]\>.*?\<\/h[3-4]\>", latest_release_note.get("html")
     )[1:]
     latest_release_note_subsections_text_only = [
         BeautifulSoup(html, "html.parser").get_text()
         for html in latest_release_note_subsections_html
     ]
     latest_release_note_subsections_headers = re.findall(
-        r"<h3>(.*)?</h3>", latest_release_note.get("html")
+        r"<h[3-4]>(.*?)</h[3-4]>", latest_release_note.get("html")
     )
     stored_release_note_subsections_html = re.split(
-        r"\<h3\>.*?\<\/h3\>", stored_release_note.get("html")
+        r"\<h[3-4]\>.*?\<\/h[3-4]\>", stored_release_note.get("html")
     )[1:]
     stored_release_note_subsections_text_only = [
         BeautifulSoup(html, "html.parser").get_text()
@@ -154,7 +157,8 @@ def get_new_release_note_subsections(latest_release_note, stored_release_note):
     new_release_notes_subsections = ""
     for index, subsection_text in enumerate(latest_release_note_subsections_text_only):
         if subsection_text not in stored_release_note_subsections_text_only:
-            new_release_notes_subsections += f"<h3>{latest_release_note_subsections_headers[index]}</h3>{latest_release_note_subsections_html[index]}"
+            header = latest_release_note_subsections_headers[index] if index < len(latest_release_note_subsections_headers) else "Update"
+            new_release_notes_subsections += f"<h3>{header}</h3>{latest_release_note_subsections_html[index]}"
     latest_release_note["html"] = new_release_notes_subsections
     return latest_release_note
 
@@ -253,7 +257,10 @@ def http_request(request):
         <https://flask.palletsprojects.com/en/1.1.x/api/#flask.make_response>.
     """
     todays_release_notes_dict = {}
-    with futures.ThreadPoolExecutor() as executor:
+    # Clear the global futures list to prevent memory leak across invocations
+    publish_futures.clear()
+
+    with futures.ThreadPoolExecutor(max_workers=50) as executor:
         todays_release_notes = executor.map(get_todays_release_note, rss_urls)
     for release_note in todays_release_notes:
         if release_note:
