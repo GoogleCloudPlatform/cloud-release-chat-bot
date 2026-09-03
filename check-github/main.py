@@ -181,8 +181,10 @@ def publish_to_pubsub(space_id, release):
 
 def send_new_release_notifications():
     """Main function to check for, summarize, and send new release notifications."""
+    publish_futures.clear()
+    
     all_releases_map = {}
-    with futures.ThreadPoolExecutor() as executor:
+    with futures.ThreadPoolExecutor(max_workers=50) as executor:
         results = executor.map(get_releases_from_rss, rss_urls)
         for release_map in results:
             all_releases_map.update(release_map)

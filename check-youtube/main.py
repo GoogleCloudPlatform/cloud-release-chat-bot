@@ -208,15 +208,17 @@ def publish_to_pubsub(space_id, video):
 
 def send_new_video_notifications():
     """Main function to check for and send new video notifications."""
+    publish_futures.clear()
+    
     all_videos_map = {}
-    with futures.ThreadPoolExecutor() as executor:
+    with futures.ThreadPoolExecutor(max_workers=50) as executor:
         # Process each RSS URL in parallel
         results = executor.map(get_videos_from_rss, rss_urls)
         for video_map in results:
             all_videos_map.update(video_map)
 
     new_videos_map = get_new_videos(all_videos_map)
-    with futures.ThreadPoolExecutor() as executor:
+    with futures.ThreadPoolExecutor(max_workers=50) as executor:
         executor.map(summarize_video, new_videos_map.values())
     subscriptions_ref = firestore_client.collection("youtube_channel_subscriptions")
 
