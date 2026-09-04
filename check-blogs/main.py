@@ -19,6 +19,18 @@ from datetime import datetime
 
 import functions_framework
 import requests
+from requests.adapters import HTTPAdapter, Retry
+
+# Setup highly resilient shared HTTP session
+http_session = requests.Session()
+retries = Retry(
+    total=5,
+    backoff_factor=1.5,
+    status_forcelist=[429, 500, 502, 503, 504],
+    allowed_methods=["GET"]
+)
+http_session.mount('https://', HTTPAdapter(max_retries=retries))
+http_session.mount('http://', HTTPAdapter(max_retries=retries))
 from blog_rss_urls import rss_urls
 from bs4 import BeautifulSoup
 from google import genai
@@ -100,7 +112,7 @@ def summarize_blog(blog):
 
 
 def get_blog_posts(rss_url):
-    page = requests.get(rss_url)
+    page = http_session.get(rss_url, timeout=15)
     soup = BeautifulSoup(page.content, "xml")
     blog_map = {}
     blogs = soup.find_all("item")
@@ -173,14 +185,14 @@ def send_new_blogs():
     publish_futures.clear()
 
     blog_map = {}
-    with futures.ThreadPoolExecutor(max_workers=50) as executor:
+    with futures.ThreadPoolExecutor(max_workers=15) as executor:
         blogs_by_categories = executor.map(get_blog_posts, rss_urls)
     for category_blogs in blogs_by_categories:
         for guid, blog in category_blogs.items():
             if blog:
                 blog_map[guid] = blog
     new_blogs_map = get_new_blog_posts(blog_map)
-    with futures.ThreadPoolExecutor(max_workers=50) as executor:
+    with futures.ThreadPoolExecutor(max_workers=15) as executor:
         executor.map(summarize_blog, new_blogs_map.values())
     subscriptions_ref = firestore_client.collection("space_blog_subscriptions")
     for blog in new_blogs_map.values():

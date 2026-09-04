@@ -21,6 +21,19 @@ from hashlib import sha256
 
 import functions_framework
 import requests
+from requests.adapters import HTTPAdapter, Retry
+
+# Setup highly resilient shared HTTP session
+http_session = requests.Session()
+retries = Retry(
+    total=5,
+    backoff_factor=1.5,
+    status_forcelist=[429, 500, 502, 503, 504],
+    allowed_methods=["GET"]
+)
+http_session.mount('https://', HTTPAdapter(max_retries=retries))
+http_session.mount('http://', HTTPAdapter(max_retries=retries))
+
 from bs4 import BeautifulSoup
 from google.cloud import firestore, pubsub_v1
 from product_rss_urls import rss_urls
@@ -71,7 +84,7 @@ def get_todays_release_note(rss_url):
         str: The title and description of the latest release note, or None if an error occurs.
     """
     try:
-        response = requests.get(rss_url)
+        response = http_session.get(rss_url, timeout=15)
         response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
         soup = BeautifulSoup(response.content, "xml")
         product = re.sub(
@@ -256,7 +269,7 @@ def http_request(request):
     # Clear the global futures list to prevent memory leak across invocations
     publish_futures.clear()
 
-    with futures.ThreadPoolExecutor(max_workers=50) as executor:
+    with futures.ThreadPoolExecutor(max_workers=15) as executor:
         todays_release_notes = executor.map(get_todays_release_note, rss_urls)
     for release_note in todays_release_notes:
         if release_note:

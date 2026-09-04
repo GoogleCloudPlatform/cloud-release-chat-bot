@@ -19,6 +19,18 @@ from datetime import datetime
 
 import functions_framework
 import requests
+from requests.adapters import HTTPAdapter, Retry
+
+# Setup highly resilient shared HTTP session
+http_session = requests.Session()
+retries = Retry(
+    total=5,
+    backoff_factor=1.5,
+    status_forcelist=[429, 500, 502, 503, 504],
+    allowed_methods=["GET"]
+)
+http_session.mount('https://', HTTPAdapter(max_retries=retries))
+http_session.mount('http://', HTTPAdapter(max_retries=retries))
 from bs4 import BeautifulSoup
 from channel_rss_urls import rss_urls
 from google import genai
@@ -139,7 +151,7 @@ def summarize_video(video):
 def get_videos_from_rss(rss_url):
     """Parses a YouTube RSS feed and returns a map of recent videos."""
     try:
-        page = requests.get(rss_url)
+        page = http_session.get(rss_url, timeout=15)
         page.raise_for_status()  # Raise an exception for bad status codes
         soup = BeautifulSoup(page.content, "xml")
         channel_id = soup.find("yt:channelId").text
@@ -211,14 +223,14 @@ def send_new_video_notifications():
     publish_futures.clear()
     
     all_videos_map = {}
-    with futures.ThreadPoolExecutor(max_workers=50) as executor:
+    with futures.ThreadPoolExecutor(max_workers=15) as executor:
         # Process each RSS URL in parallel
         results = executor.map(get_videos_from_rss, rss_urls)
         for video_map in results:
             all_videos_map.update(video_map)
 
     new_videos_map = get_new_videos(all_videos_map)
-    with futures.ThreadPoolExecutor(max_workers=50) as executor:
+    with futures.ThreadPoolExecutor(max_workers=15) as executor:
         executor.map(summarize_video, new_videos_map.values())
     subscriptions_ref = firestore_client.collection("youtube_channel_subscriptions")
 
