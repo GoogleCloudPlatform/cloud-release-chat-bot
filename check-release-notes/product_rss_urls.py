@@ -260,7 +260,7 @@ rss_urls = [
         "healthcare-release-notes.xml",
         "healthcare-v1-release-notes.xml",
         "healthcare-v1beta1-release-notes.xml",
-        "https://gtidocs.virustotal.com/changelog.rss",
+
         "iam-release-notes.xml",
         "iap-release-notes.xml",
         "identityplatform-release-notes.xml",
@@ -390,4 +390,5 @@ rss_urls = [
     ]
 ]
 # Add changelog RSS URL for Google Threat Intelligence
+
 rss_urls.append("https://gtidocs.virustotal.com/changelog.rss")

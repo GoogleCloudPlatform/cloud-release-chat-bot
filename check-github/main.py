@@ -30,8 +30,8 @@ retries = Retry(
     status_forcelist=[429, 500, 502, 503, 504],
     allowed_methods=["GET"]
 )
-http_session.mount('https://', HTTPAdapter(max_retries=retries))
-http_session.mount('http://', HTTPAdapter(max_retries=retries))
+http_session.mount('https://', HTTPAdapter(pool_connections=50, pool_maxsize=50, max_retries=retries))
+http_session.mount('http://', HTTPAdapter(pool_connections=50, pool_maxsize=50, max_retries=retries))
 from bs4 import BeautifulSoup
 from github_rss_urls import rss_urls
 from google import genai
