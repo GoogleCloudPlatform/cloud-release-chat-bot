@@ -20,6 +20,18 @@ from datetime import datetime
 
 import functions_framework
 import requests
+from requests.adapters import HTTPAdapter, Retry
+
+# Setup highly resilient shared HTTP session
+http_session = requests.Session()
+retries = Retry(
+    total=5,
+    backoff_factor=1.5,
+    status_forcelist=[429, 500, 502, 503, 504],
+    allowed_methods=["GET"]
+)
+http_session.mount('https://', HTTPAdapter(max_retries=retries))
+http_session.mount('http://', HTTPAdapter(max_retries=retries))
 from bs4 import BeautifulSoup
 from github_rss_urls import rss_urls
 from google import genai
@@ -111,7 +123,7 @@ def get_releases_from_rss(rss_url):
     """Parses a GitHub releases Atom feed and returns a map of recent releases."""
     release_map = {}
     try:
-        page = requests.get(rss_url)
+        page = http_session.get(rss_url, timeout=15)
         page.raise_for_status()
         soup = BeautifulSoup(page.content, "xml")
 
@@ -184,7 +196,7 @@ def send_new_release_notifications():
     publish_futures.clear()
     
     all_releases_map = {}
-    with futures.ThreadPoolExecutor(max_workers=50) as executor:
+    with futures.ThreadPoolExecutor(max_workers=15) as executor:
         results = executor.map(get_releases_from_rss, rss_urls)
         for release_map in results:
             all_releases_map.update(release_map)
