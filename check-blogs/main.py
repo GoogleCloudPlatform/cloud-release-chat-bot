@@ -185,14 +185,14 @@ def send_new_blogs():
     publish_futures.clear()
 
     blog_map = {}
-    with futures.ThreadPoolExecutor(max_workers=15) as executor:
+    with futures.ThreadPoolExecutor() as executor:
         blogs_by_categories = executor.map(get_blog_posts, rss_urls)
     for category_blogs in blogs_by_categories:
         for guid, blog in category_blogs.items():
             if blog:
                 blog_map[guid] = blog
     new_blogs_map = get_new_blog_posts(blog_map)
-    with futures.ThreadPoolExecutor(max_workers=15) as executor:
+    with futures.ThreadPoolExecutor() as executor:
         executor.map(summarize_blog, new_blogs_map.values())
     subscriptions_ref = firestore_client.collection("space_blog_subscriptions")
     for blog in new_blogs_map.values():

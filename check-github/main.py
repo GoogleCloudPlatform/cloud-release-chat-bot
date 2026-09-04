@@ -196,7 +196,7 @@ def send_new_release_notifications():
     publish_futures.clear()
     
     all_releases_map = {}
-    with futures.ThreadPoolExecutor(max_workers=15) as executor:
+    with futures.ThreadPoolExecutor() as executor:
         results = executor.map(get_releases_from_rss, rss_urls)
         for release_map in results:
             all_releases_map.update(release_map)
