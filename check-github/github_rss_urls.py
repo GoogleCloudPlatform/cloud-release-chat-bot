@@ -17,6 +17,7 @@ github_owner_map = [
     {
         "owner": "GoogleCloudPlatform",
         "repos": [
+            "ccaas-observability",
             "professional-services-data-validator",
             "spanner-migration-tool",
         ],

@@ -130,6 +130,7 @@ rss_urls = [
         "container-registry-release-notes.xml",
         "cortex-release-notes.xml",
         "cos-release-notes.xml",
+        "cx-agent-studio-release-notes.xml",
         "data-catalog-release-notes.xml",
         "data-catalog-v1-release-notes.xml",
         "data-catalog-v1beta1-release-notes.xml",
