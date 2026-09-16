@@ -19,6 +19,18 @@ from datetime import datetime
 
 import functions_framework
 import requests
+from requests.adapters import HTTPAdapter, Retry
+
+# Setup highly resilient shared HTTP session
+http_session = requests.Session()
+retries = Retry(
+    total=5,
+    backoff_factor=1.5,
+    status_forcelist=[429, 500, 502, 503, 504],
+    allowed_methods=["GET"]
+)
+http_session.mount('https://', HTTPAdapter(pool_connections=50, pool_maxsize=50, max_retries=retries))
+http_session.mount('http://', HTTPAdapter(pool_connections=50, pool_maxsize=50, max_retries=retries))
 from bs4 import BeautifulSoup
 from channel_rss_urls import rss_urls
 from google import genai
@@ -139,7 +151,7 @@ def summarize_video(video):
 def get_videos_from_rss(rss_url):
     """Parses a YouTube RSS feed and returns a map of recent videos."""
     try:
-        page = requests.get(rss_url)
+        page = http_session.get(rss_url, timeout=15)
         page.raise_for_status()  # Raise an exception for bad status codes
         soup = BeautifulSoup(page.content, "xml")
         channel_id = soup.find("yt:channelId").text
@@ -208,6 +220,8 @@ def publish_to_pubsub(space_id, video):
 
 def send_new_video_notifications():
     """Main function to check for and send new video notifications."""
+    publish_futures.clear()
+    
     all_videos_map = {}
     with futures.ThreadPoolExecutor() as executor:
         # Process each RSS URL in parallel

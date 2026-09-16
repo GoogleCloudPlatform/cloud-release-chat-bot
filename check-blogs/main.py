@@ -19,6 +19,18 @@ from datetime import datetime
 
 import functions_framework
 import requests
+from requests.adapters import HTTPAdapter, Retry
+
+# Setup highly resilient shared HTTP session
+http_session = requests.Session()
+retries = Retry(
+    total=5,
+    backoff_factor=1.5,
+    status_forcelist=[429, 500, 502, 503, 504],
+    allowed_methods=["GET"]
+)
+http_session.mount('https://', HTTPAdapter(pool_connections=50, pool_maxsize=50, max_retries=retries))
+http_session.mount('http://', HTTPAdapter(pool_connections=50, pool_maxsize=50, max_retries=retries))
 from blog_rss_urls import rss_urls
 from bs4 import BeautifulSoup
 from google import genai
@@ -100,7 +112,7 @@ def summarize_blog(blog):
 
 
 def get_blog_posts(rss_url):
-    page = requests.get(rss_url)
+    page = http_session.get(rss_url, timeout=15)
     soup = BeautifulSoup(page.content, "xml")
     blog_map = {}
     blogs = soup.find_all("item")
@@ -170,6 +182,8 @@ def publish_to_pubsub(space_id, blog):
 
 
 def send_new_blogs():
+    publish_futures.clear()
+
     blog_map = {}
     with futures.ThreadPoolExecutor() as executor:
         blogs_by_categories = executor.map(get_blog_posts, rss_urls)
