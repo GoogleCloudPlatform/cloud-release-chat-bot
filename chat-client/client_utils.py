@@ -197,6 +197,7 @@ repos = [
     "All Repos",
     "adk-python",
     "adk-java",
+    "ccaas-observability",
     "professional-services-data-validator",
     "python-bigquery",
     "java-bigquery",
